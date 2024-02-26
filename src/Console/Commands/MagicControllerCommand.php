@@ -50,6 +50,11 @@ class MagicControllerCommand extends GeneratorCommand
      */
     protected function buildClass($name)
     {
+        if ($this->alreadyExists(str_replace('.php', '', $this->getPath($name)))) {
+            $this->components->error("This Controller already exists");
+            return;
+        }
+
         $model = $name;
         $modelVariable = $this->option('variable');
         $modelUnderScore = $this->option('underscore');

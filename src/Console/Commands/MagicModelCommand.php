@@ -50,6 +50,11 @@ class MagicModelCommand extends GeneratorCommand
      */
     protected function buildClass($name)
     {
+        if ($this->alreadyExists($name)) {
+            $this->components->error("This model already exists");
+            return;
+        }
+
         $ary = explode("\\", $name);
         $model = $ary[count($ary) - 1];
         $modelVariable = lcfirst($model);

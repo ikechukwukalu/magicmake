@@ -3,7 +3,7 @@
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/ikechukwukalu/magicmake?style=flat-square)](https://packagist.org/packages/ikechukwukalu/magicmake)
 [![Quality Score](https://img.shields.io/scrutinizer/quality/g/ikechukwukalu/magicmake/main?style=flat-square)](https://scrutinizer-ci.com/g/ikechukwukalu/magicmake/)
 [![Code Quality](https://img.shields.io/codefactor/grade/github/ikechukwukalu/magicmake?style=flat-square)](https://www.codefactor.io/repository/github/ikechukwukalu/magicmake)
-[![Known Vulnerabilities](https://snyk.io/test/github/ikechukwukalu/magicmake/badge.svg?style=flat-square)](https://security.snyk.io/package/composer/ikechukwukalu%2Fmagicmake)
+<!-- [![Known Vulnerabilities](https://snyk.io/test/github/ikechukwukalu/magicmake/badge.svg?style=flat-square)](https://security.snyk.io/package/composer/ikechukwukalu%2Fmagicmake) -->
 [![Github Workflow Status](https://img.shields.io/github/actions/workflow/status/ikechukwukalu/magicmake/magicmake.yml?branch=main&style=flat-square)](https://github.com/ikechukwukalu/magicmake/actions/workflows/magicmake.yml)
 [![Total Downloads](https://img.shields.io/packagist/dt/ikechukwukalu/magicmake?style=flat-square)](https://packagist.org/packages/ikechukwukalu/magicmake)
 [![Licence](https://img.shields.io/packagist/l/ikechukwukalu/magicmake?style=flat-square)](https://github.com/ikechukwukalu/magicmake/blob/main/LICENSE.md)
@@ -84,6 +84,12 @@ Add to the `composer.json` file.
 },
 ```
 
+After that run:
+
+```shell
+composer dump-autoload
+```
+
 Add to the `config/app.php`.
 
 ```php
@@ -94,12 +100,22 @@ App\Providers\MacroServiceProvider::class,
 App\Providers\RepositoryServiceProvider::class,
 ```
 
+Add to `app/Http/Kernel.php` in `protected $middlewareAliases`
+
+```php
+protected $middlewareAliases = [
+    ....
+    'check.email.verification' => \App\Http\Middleware\CheckEmailVerification::class,
+]
+```
+
 ### Project setup
 
 ```shell
+php artisan ui bootstrap
 npm install
 composer install
-php artisan migrate:refresh --seed
+php artisan migrate --seed
 ```
 
 ### Run development server
@@ -107,6 +123,7 @@ php artisan migrate:refresh --seed
 ```shell
 npm run build
 php artisan serve
+php artisan test
 ```
 
 ## LICENSE

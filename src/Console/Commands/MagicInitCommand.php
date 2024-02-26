@@ -26,10 +26,12 @@ class MagicInitCommand extends InitCommands
     public function handle()
     {
         if (env('APP_ENV', 'production') != 'local') {
+            $this->components->error("This app environment is not local");
             return;
         }
 
         if (env('MAGIC_INIT_LOCK', true) === true) {
+            $this->components->error("This action is blocked. MAGIC_INIT_LOCK is enabled by default");
             return;
         }
 

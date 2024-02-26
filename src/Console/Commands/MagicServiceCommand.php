@@ -50,6 +50,11 @@ class MagicServiceCommand extends GeneratorCommand
      */
     protected function buildClass($name)
     {
+        if ($this->alreadyExists(str_replace('.php', '', $this->getPath($name)))) {
+            $this->components->error("This Service already exists");
+            return;
+        }
+
         $ary = explode("\\", $name);
         $model = $ary[count($ary) - 1];
         $modelVariable = $this->option('variable');

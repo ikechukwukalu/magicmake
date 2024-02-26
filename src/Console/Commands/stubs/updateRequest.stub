@@ -20,7 +20,8 @@ class {{ model }}UpdateRequest extends BaseFormRequest
     public function rules(): array
     {
         return [
-            'id' => ['required', 'exists:{{ modelUnderScore }}s,id'],
+            'id' => 'required|exists:{{ modelUnderScore }}s,id',
+            'name' => 'required|string|max:150'
         ];
     }
 }

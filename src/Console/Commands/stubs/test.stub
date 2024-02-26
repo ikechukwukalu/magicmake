@@ -24,7 +24,7 @@ class {{ model }}Test extends TestCase
         $this->actingAs($user);
 
         $postData = [
-            'name' => $this->faker->name(),
+            'name' => null,
         ];
 
         $response = $this->postJson(route('create{{ model }}'), $postData);
@@ -58,6 +58,7 @@ class {{ model }}Test extends TestCase
 
         $postData = [
             'id' => 'abc',
+            'name' => $this->faker->name(),
         ];
 
         $response = $this->putJson(route('update{{ model }}'), $postData);
@@ -76,6 +77,7 @@ class {{ model }}Test extends TestCase
 
         $postData = [
             'id' => ${{ modelVariable }}->id,
+            'name' => $this->faker->name(),
         ];
 
         $response = $this->putJson(route('update{{ model }}'), $postData);
