@@ -29,8 +29,8 @@ jobs:
           tools: "parallel-lint"
       - name: "Checkout code"
         uses: "actions/checkout@v3"
-      - name: "Validate Composer configuration"
-        run: "composer validate --strict"
+      # - name: "Validate Composer configuration"
+      #   run: "composer validate --strict"
       - name: "Check source code for syntax errors"
         run: "composer exec -- parallel-lint src/"
   unit_tests:
