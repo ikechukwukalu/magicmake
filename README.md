@@ -65,6 +65,34 @@ php artisan magic:test UserKyc --variable=userKyc --underscore=user_kyc
 php artisan magic:factory UserKyc --variable=userKyc --underscore=user_kyc
 ```
 
+### Note
+
+Add this to `config/api.php`.
+
+```php
+    'paginate' => [
+        ...
+        'user_kyc' => [
+            'pageSize' => 10,
+        ],
+    ],
+```
+
+Add this to `app/Providers/RepositoryServiceProvider.php`.
+
+```php
+use App\Contracts\UserKycRepositoryInterface;
+use App\Repositories\UserKycRepository;
+
+
+public function register(): void
+{
+    ...
+    $this->app->bind(UserKycRepositoryInterface::class, UserKycRepository::class);
+}
+```
+
+
 ## FINISHING SETUP
 
 If you did run `php artisan magic:init`.
