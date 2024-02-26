@@ -28,7 +28,7 @@
         "beyondcode/laravel-websockets": "^1.14",
         "calebporzio/sushi": "^2.4",
         "doctrine/dbal": "^3.5",
-        "hisorange/browser-detect": "^4.5",
+        "hisorange/browser-detect": "^4.5 || ^5.0",
         "ikechukwukalu/clamavfileupload": "^2.0",
         "ikechukwukalu/makeservice": "^1.0",
         "ikechukwukalu/requirepin": "^1.0",
