@@ -1,0 +1,61 @@
+<?php
+
+namespace App\Services;
+
+use App\Actions\ResponseData;
+use App\Contracts\{{ model }}RepositoryInterface;
+use App\Http\Requests\{{ model }}CreateRequest;
+use App\Http\Requests\{{ model }}DeleteRequest;
+use App\Http\Requests\{{ model }}UpdateRequest;
+
+class {{ model }}Service extends BasicCrudService
+{
+
+    public function __construct(private {{ model }}RepositoryInterface ${{ modelVariable }}Repository)
+    { }
+
+    /**
+     * Handle the create request.
+     *
+     * @param  \App\Http\Requests\{{ model }}CreateRequest $request
+     * @return \App\Actions\ResponseData
+     */
+    public function handleCreate({{ model }}CreateRequest $request): ResponseData
+    {
+        return $this->create($request, $this->{{ modelVariable }}Repository);
+    }
+
+    /**
+     * Handle the update request.
+     *
+     * @param  \App\Http\Requests\{{ model }}UpdateRequest $request
+     * @return \App\Actions\ResponseData
+     */
+    public function handleUpdate({{ model }}UpdateRequest $request): ResponseData
+    {
+        return $this->update($request, $this->{{ modelVariable }}Repository);
+    }
+
+    /**
+     * Handle the delete request.
+     *
+     * @param  \App\Http\Requests\{{ model }}DeleteRequest $request
+     * @return \App\Actions\ResponseData
+     */
+    public function handleDelete({{ model }}DeleteRequest $request): ResponseData
+    {
+        return $this->delete($request, $this->{{ modelVariable }}Repository);
+    }
+
+    /**
+     * Handle the read request.
+     *
+     * @param null|string|int $id
+     * @return array
+     */
+    public function handleRead(null|string|int $id = null): ResponseData
+    {
+        return $this->read($this->{{ modelVariable }}Repository, '{{ modelUnderScore }}', $id);
+    }
+
+}

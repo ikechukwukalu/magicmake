@@ -1,0 +1,11 @@
+
+use App\Http\Controllers\{{ model }}Controller;
+
+Route::prefix('{{ modelUnderScore }}')->group(function () {
+
+    Route::post('create', [{{ model }}Controller::class, 'create'])->name('create{{ model }}');
+    Route::delete('delete', [{{ model }}Controller::class, 'delete'])->name('delete{{ model }}');
+    Route::get('read/{id?}', [{{ model }}Controller::class, 'read'])->name('read{{ model }}');
+    Route::put('update', [{{ model }}Controller::class, 'update'])->name('update{{ model }}');
+
+});

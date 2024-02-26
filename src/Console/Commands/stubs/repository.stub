@@ -1,0 +1,90 @@
+<?php
+
+namespace App\Repositories;
+
+use App\Contracts\{{ model }}RepositoryInterface;
+use App\Models\{{ model }};
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Pagination\LengthAwarePaginator;
+
+class {{ model }}Repository implements {{ model }}RepositoryInterface
+{
+
+    /**
+     * Fetch all \App\Models\{{ model }} records.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function getAll(): EloquentCollection
+    {
+        return {{ model }}::all();
+    }
+
+    /**
+     * Fetch \App\Models\{{ model }} record by ID.
+     *
+     * @param int $id
+     * @return \App\Models\{{ model }}|null
+     */
+    public function getById(int $id): null|{{ model }}
+    {
+        return {{ model }}::find($id);
+    }
+
+    /**
+     * Delete \App\Models\{{ model }} record by ID.
+     *
+     * @param int $id
+     * @return void
+     */
+    public function delete(int $id): void
+    {
+        {{ model }}::destroy($id);
+    }
+
+    /**
+     * Create \App\Models\{{ model }} record.
+     *
+     * @param array $arrayDetails
+     * @return \App\Models\{{ model }}
+     */
+    public function create(array $arrayDetails): {{ model }}
+    {
+        return {{ model }}::create($arrayDetails);
+    }
+
+    /**
+     * Fetch or create a single \App\Models\{{ model }} record.
+     *
+     * @param array $matchDetails
+     * @param array $arrayDetails
+     * @return \App\Models\{{ model }}
+     */
+    public function firstOrCreate(array $matchDetails, array $arrayDetails): {{ model }}
+    {
+        return {{ model }}::firstOrCreate($matchDetails, $arrayDetails);
+    }
+
+    /**
+     * Update \App\Models\{{ model }} record.
+     *
+     * @param int $id
+     * @param array $arrayDetails
+     * @return int
+     */
+    public function update(int $id, array $arrayDetails): int
+    {
+        return {{ model }}::where('id', $id)->update($arrayDetails);
+    }
+
+    /**
+     * Update \App\Models\{{ model }} record.
+     *
+     * @param int $pageSize
+     * @return \Illuminate\Pagination\LengthAwarePaginator
+     */
+    public function getPaginated(int $pageSize): LengthAwarePaginator
+    {
+        return {{ model }}::paginate($pageSize);
+    }
+}

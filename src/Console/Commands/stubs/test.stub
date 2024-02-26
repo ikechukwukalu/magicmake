@@ -1,0 +1,150 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Models\{{ model }};
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
+use Tests\TestCase;
+
+class {{ model }}Test extends TestCase
+{
+    use WithFaker;
+
+    /**
+     * A basic feature test example.
+     *
+     * @return void
+     */
+    public function testErrorValidationForCreate{{ model }}()
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user);
+
+        $postData = [
+            'name' => $this->faker->name(),
+        ];
+
+        $response = $this->postJson(route('create{{ model }}'), $postData);
+        $responseArray = $response->json();
+
+        $this->assertFalse($responseArray['success']);
+    }
+
+    public function testCreate{{ model }}()
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user);
+
+        $postData = [
+            'name' => $this->faker->name(),
+        ];
+
+        $response = $this->postJson(route('create{{ model }}'), $postData);
+        $responseArray = $response->json();
+
+        $response->assertOk();
+        $this->assertTrue($responseArray['success']);
+    }
+
+    public function testErrorValidationForUpdate{{ model }}()
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user);
+
+        $postData = [
+            'id' => 'abc',
+        ];
+
+        $response = $this->putJson(route('update{{ model }}'), $postData);
+        $responseArray = $response->json();
+
+        $this->assertFalse($responseArray['success']);
+    }
+
+    public function testUpdate{{ model }}()
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user);
+
+        ${{ modelVariable }} = {{ model }}::factory()->create();
+
+        $postData = [
+            'id' => ${{ modelVariable }}->id,
+        ];
+
+        $response = $this->putJson(route('update{{ model }}'), $postData);
+        $responseArray = $response->json();
+
+        $response->assertOk();
+        $this->assertTrue($responseArray['success']);
+    }
+
+    public function testErrorValidationForDelete{{ model }}()
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user);
+
+        $postData = [
+            'id' => 'abc'
+        ];
+
+        $response = $this->deleteJson(route('delete{{ model }}'), $postData);
+        $responseArray = $response->json();
+
+        $this->assertFalse($responseArray['success']);
+    }
+
+    public function testDelete{{ model }}()
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user);
+
+        ${{ modelVariable }} = {{ model }}::factory()->create();
+
+        $postData = [
+            'id' => ${{ modelVariable }}->id
+        ];
+
+        $response = $this->deleteJson(route('delete{{ model }}'), $postData);
+        $responseArray = $response->json();
+
+        $response->assertOk();
+        $this->assertTrue($responseArray['success']);
+    }
+
+    public function testRead{{ model }}(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user);
+
+        ${{ modelVariable }} = {{ model }}::factory()->create();
+
+        $response = $this->getJson(route('read{{ model }}', ['id' => 'all']));
+        $responseArray = $response->json();
+
+        $response->assertOk();
+        $this->assertTrue($responseArray['success']);
+
+        $response = $this->getJson(route('read{{ model }}', ['id' => ${{ modelVariable }}->id]));
+        $responseArray = $response->json();
+
+        $response->assertOk();
+        $this->assertTrue($responseArray['success']);
+
+        $response = $this->getJson(route('read{{ model }}'));
+        $responseArray = $response->json();
+
+        $response->assertOk();
+        $this->assertTrue($responseArray['success']);
+    }
+
+}

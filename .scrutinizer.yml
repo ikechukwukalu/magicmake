@@ -1,0 +1,20 @@
+build:
+    nodes:
+        analysis:
+            project_setup:
+                override:
+                    - 'true'
+            image: default-bionic
+            environment:
+                php: 8.1.2
+            tests:
+                override:
+                    - php-scrutinizer-run
+checks:
+    php: true
+coding_style:
+    php:
+        spaces:
+            within:
+                brackets: true
+filter: {  }
