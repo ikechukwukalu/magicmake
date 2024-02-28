@@ -48,7 +48,7 @@
         "stevebauman/location": "^6.6",
         "symfony/console": "^5.4|^6.0",
         "symfony/finder": "^6.0",
-        "mobiledetect/mobiledetectlib": "2.8.32",
+        "mobiledetect/mobiledetectlib": "2.8.x-dev",
         "react/http": "1.9.0"
     },
     "require-dev": {
