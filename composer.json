@@ -38,7 +38,7 @@
         "knuckleswtf/scribe": "^4.29",
         "laravel/socialite": "^5.5",
         "laravel/ui": "^4.4",
-        "laragear/two-factor": "^1.2",
+        "laragear/two-factor": "^1.2 || ^2.0",
         "php": ">=7.3",
         "predis/predis": "^2.1",
         "pusher/pusher-php-server": "^7.2",
