@@ -198,7 +198,7 @@ class LoginService {
                 bool $twoFactor = false): ResponseData
     {
         $token = $user->createToken($validated['email']);
-        $this->userLoginNotification($user);
+        $this->userLoginNotification($user, request()->ip());
 
         if ($twoFactor) {
             TwoFactorLoginEvent::dispatch($user, $token, $validated['uuid']);

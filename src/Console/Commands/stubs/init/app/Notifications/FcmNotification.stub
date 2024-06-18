@@ -31,7 +31,7 @@ class FcmNotification extends Notification implements ShouldQueue
      */
     public function via($notifiable)
     {
-        return ['database', FcmChannel::class];
+        return [FcmChannel::class];
     }
 
     /**
@@ -56,7 +56,7 @@ class FcmNotification extends Notification implements ShouldQueue
         $messaging = Firebase::messaging();
         $userDeviceTokens = UserDeviceToken::where('user_id', $notifiable->id)->get();
 
-        try {
+        tryCatch(function () use($messaging, $userDeviceTokens) {
             foreach ($userDeviceTokens as $userDeviceToken) {
                 $message = CloudMessage::fromArray([
                     'token' => $userDeviceToken->device_token,
@@ -66,9 +66,10 @@ class FcmNotification extends Notification implements ShouldQueue
 
                 $messaging->send($message);
             }
-        } catch (\Throwable $th) {
+        },
+        function(\Throwable $th) {
             throw new FcmException($th->getMessage(), $th->getCode(), $th);
-        }
+        });
     }
 
 }

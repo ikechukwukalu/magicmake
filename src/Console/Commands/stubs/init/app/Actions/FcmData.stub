@@ -1,0 +1,30 @@
+<?php
+
+namespace App\Actions;
+
+class FcmData
+{
+
+    /**
+     * @param string $title
+     * @param string $body
+     * @param null|string $link
+     * @param null|string $image
+     */
+    public function __construct(public string $title,
+        public string $body,
+        public null|string $link = null,
+        public null|string $image = null
+    ) { }
+
+    public function toArray(): array
+    {
+        return [
+            'title' => $this->title,
+            'body' => $this->body,
+            'link' => $this->link,
+            'image' => $this->image
+        ];
+    }
+
+}

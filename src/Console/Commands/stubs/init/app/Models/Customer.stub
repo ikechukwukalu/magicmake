@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Customer extends User
 {
     use HasFactory;
-    use HasCustomer, CustomerMethods;
 
     protected $table = 'users';
 

@@ -12,21 +12,9 @@ class InitCommands extends Command
 
     protected function handleAppActionPath()
     {
-        if (! is_dir($directory = app_path('Actions'))) {
-            mkdir($directory, 0755, true);
-        }
-
-        $filesystem = new Filesystem;
-
-        collect($filesystem->allFiles(__DIR__.'/stubs/init/app/Actions'))
-            ->each(function (SplFileInfo $file) use ($filesystem) {
-                $filesystem->copy(
-                    $file->getPathname(),
-                    app_path('Actions/'.Str::replaceLast('.stub', '.php', $file->getFilename()))
-                );
-            });
-
-        $this->components->info('Action classes scaffolding generated successfully.');
+        $this->handlePath('Actions',
+            __DIR__.'/stubs/init/app/Actions',
+            'Action');
     }
 
     protected function handleAppContractsPath()
@@ -50,454 +38,167 @@ class InitCommands extends Command
 
     protected function handleAppEnumsPath()
     {
-        if (! is_dir($directory = app_path('Enums'))) {
-            mkdir($directory, 0755, true);
-        }
-
-        $filesystem = new Filesystem;
-
-        collect($filesystem->allFiles(__DIR__.'/stubs/init/app/Enums'))
-            ->each(function (SplFileInfo $file) use ($filesystem) {
-                $filesystem->copy(
-                    $file->getPathname(),
-                    app_path('Enums/'.Str::replaceLast('.stub', '.php', $file->getFilename()))
-                );
-            });
-
-        $this->components->info('Enum classes scaffolding generated successfully.');
+        $this->handlePath('Enums',
+            __DIR__.'/stubs/init/app/Enums',
+            'Enum');
     }
 
     protected function handleAppEventsPath()
     {
-        if (! is_dir($directory = app_path('Events'))) {
-            mkdir($directory, 0755, true);
-        }
-
-        $filesystem = new Filesystem;
-
-        collect($filesystem->allFiles(__DIR__.'/stubs/init/app/Events'))
-            ->each(function (SplFileInfo $file) use ($filesystem) {
-                $filesystem->copy(
-                    $file->getPathname(),
-                    app_path('Events/'.Str::replaceLast('.stub', '.php', $file->getFilename()))
-                );
-            });
-
-        $this->components->info('Event classes scaffolding generated successfully.');
+        $this->handlePath('Events',
+            __DIR__.'/stubs/init/app/Events',
+            'Event');
     }
 
     protected function handleAppExceptionsPath()
     {
-        if (! is_dir($directory = app_path('Exceptions'))) {
-            mkdir($directory, 0755, true);
-        }
-
-        $filesystem = new Filesystem;
-
-        collect($filesystem->allFiles(__DIR__.'/stubs/init/app/Exceptions'))
-            ->each(function (SplFileInfo $file) use ($filesystem) {
-                $filesystem->copy(
-                    $file->getPathname(),
-                    app_path('Exceptions/'.Str::replaceLast('.stub', '.php', $file->getFilename()))
-                );
-            });
-
-        $this->components->info('Exception classes scaffolding generated successfully.');
+        $this->handlePath('Exceptions',
+            __DIR__.'/stubs/init/app/Exceptions',
+            'Exception');
     }
 
     protected function handleAppHttpPath()
     {
-        if (! is_dir($directory = app_path('Http'))) {
-            mkdir($directory, 0755, true);
-        }
-
-        $filesystem = new Filesystem;
-
-        collect($filesystem->allFiles(__DIR__.'/stubs/init/app/Http'))
-            ->each(function (SplFileInfo $file) use ($filesystem) {
-                $filesystem->copy(
-                    $file->getPathname(),
-                    app_path('Http/'.Str::replaceLast('.stub', '.php', $file->getFilename()))
-                );
-            });
-
-        $this->components->info('Http classes scaffolding generated successfully.');
+        $this->handlePath('Http',
+            __DIR__.'/stubs/init/app/Http',
+            'Http');
     }
 
     protected function handleAppHttpControllersPath()
     {
-        if (! is_dir($directory = app_path('Http/Controllers'))) {
-            mkdir($directory, 0755, true);
-        }
-
-        $filesystem = new Filesystem;
-
-        collect($filesystem->allFiles(__DIR__.'/stubs/init/app/Controllers'))
-            ->each(function (SplFileInfo $file) use ($filesystem) {
-                $filesystem->copy(
-                    $file->getPathname(),
-                    app_path('Http/Controllers/'.Str::replaceLast('.stub', '.php', $file->getFilename()))
-                );
-            });
-
-        $this->components->info('Http/Controllers classes scaffolding generated successfully.');
+        $this->handlePath('Http/Controllers',
+            __DIR__.'/stubs/init/app/Controllers',
+            'Http/Controllers');
     }
 
     protected function handleAppHttpControllersAuthPath()
     {
-        if (! is_dir($directory = app_path('Http/Controllers/Auth'))) {
-            mkdir($directory, 0755, true);
-        }
-
-        $filesystem = new Filesystem;
-
-        collect($filesystem->allFiles(__DIR__.'/stubs/init/app/AuthControllers'))
-            ->each(function (SplFileInfo $file) use ($filesystem) {
-                $filesystem->copy(
-                    $file->getPathname(),
-                    app_path('Http/Controllers/Auth/'.Str::replaceLast('.stub', '.php', $file->getFilename()))
-                );
-            });
-
-        $this->components->info('Http/Controllers/Auth classes scaffolding generated successfully.');
+        $this->handlePath('Http/Controllers/Auth',
+            __DIR__.'/stubs/init/app/AuthControllers',
+            'Http/Controllers/Auth');
     }
 
     protected function handleAppHttpMiddlewarePath()
     {
-        if (! is_dir($directory = app_path('Http/Middleware'))) {
-            mkdir($directory, 0755, true);
-        }
-
-        $filesystem = new Filesystem;
-
-        collect($filesystem->allFiles(__DIR__.'/stubs/init/app/Middleware'))
-            ->each(function (SplFileInfo $file) use ($filesystem) {
-                $filesystem->copy(
-                    $file->getPathname(),
-                    app_path('Http/Middleware/'.Str::replaceLast('.stub', '.php', $file->getFilename()))
-                );
-            });
-
-        $this->components->info('Http/Middleware classes scaffolding generated successfully.');
+        $this->handlePath('Http/Middleware',
+            __DIR__.'/stubs/init/app/Middleware',
+            'Http/Middleware');
     }
 
     protected function handleAppHttpRequestsPath()
     {
-        if (! is_dir($directory = app_path('Http/Requests'))) {
-            mkdir($directory, 0755, true);
-        }
-
-        $filesystem = new Filesystem;
-
-        collect($filesystem->allFiles(__DIR__.'/stubs/init/app/Requests'))
-            ->each(function (SplFileInfo $file) use ($filesystem) {
-                $filesystem->copy(
-                    $file->getPathname(),
-                    app_path('Http/Requests/'.Str::replaceLast('.stub', '.php', $file->getFilename()))
-                );
-            });
-
-        $this->components->info('Http/Requests classes scaffolding generated successfully.');
+        $this->handlePath('Http/Requests',
+            __DIR__.'/stubs/init/app/Requests',
+            'Http/Requests');
     }
 
     protected function handleAppHttpRequestsAuthPath()
     {
-        if (! is_dir($directory = app_path('Http/Requests/Auth'))) {
-            mkdir($directory, 0755, true);
-        }
-
-        $filesystem = new Filesystem;
-
-        collect($filesystem->allFiles(__DIR__.'/stubs/init/app/AuthRequests'))
-            ->each(function (SplFileInfo $file) use ($filesystem) {
-                $filesystem->copy(
-                    $file->getPathname(),
-                    app_path('Http/Requests/Auth/'.Str::replaceLast('.stub', '.php', $file->getFilename()))
-                );
-            });
-
-        $this->components->info('Http/Requests/Auth classes scaffolding generated successfully.');
+        $this->handlePath('Http/Requests/Auth',
+            __DIR__.'/stubs/init/app/AuthRequests',
+            'Http/Requests/Auth');
     }
 
     protected function handleAppListenersPath()
     {
-        if (! is_dir($directory = app_path('Listeners'))) {
-            mkdir($directory, 0755, true);
-        }
-
-        $filesystem = new Filesystem;
-
-        collect($filesystem->allFiles(__DIR__.'/stubs/init/app/Listeners'))
-            ->each(function (SplFileInfo $file) use ($filesystem) {
-                $filesystem->copy(
-                    $file->getPathname(),
-                    app_path('Listeners/'.Str::replaceLast('.stub', '.php', $file->getFilename()))
-                );
-            });
-
-        $this->components->info('Listener classes scaffolding generated successfully.');
+        $this->handlePath('Listeners',
+            __DIR__.'/stubs/init/app/Listeners',
+            'Listener');
     }
 
     protected function handleAppModelsPath()
     {
-        if (! is_dir($directory = app_path('Models'))) {
-            mkdir($directory, 0755, true);
-        }
-
-        $filesystem = new Filesystem;
-
-        collect($filesystem->allFiles(__DIR__.'/stubs/init/app/Models'))
-            ->each(function (SplFileInfo $file) use ($filesystem) {
-                $filesystem->copy(
-                    $file->getPathname(),
-                    app_path('Models/'.Str::replaceLast('.stub', '.php', $file->getFilename()))
-                );
-            });
-
-        $this->components->info('Models classes scaffolding generated successfully.');
+        $this->handlePath('Models',
+            __DIR__.'/stubs/init/app/Models',
+            'Model');
     }
 
     protected function handleAppModelsScopesPath()
     {
-        if (! is_dir($directory = app_path('Models/Scopes'))) {
-            mkdir($directory, 0755, true);
-        }
-
-        $filesystem = new Filesystem;
-
-        collect($filesystem->allFiles(__DIR__.'/stubs/init/app/ModelsScopes'))
-            ->each(function (SplFileInfo $file) use ($filesystem) {
-                $filesystem->copy(
-                    $file->getPathname(),
-                    app_path('Models/Scopes/'.Str::replaceLast('.stub', '.php', $file->getFilename()))
-                );
-            });
-
-        $this->components->info('Models/Scopes classes scaffolding generated successfully.');
+        $this->handlePath('Models/Scopes',
+            __DIR__.'/stubs/init/app/ModelsScopes',
+            'Models/Scopes');
     }
 
     protected function handleAppNotificationsPath()
     {
-        if (! is_dir($directory = app_path('Notifications'))) {
-            mkdir($directory, 0755, true);
-        }
-
-        $filesystem = new Filesystem;
-
-        collect($filesystem->allFiles(__DIR__.'/stubs/init/app/Notifications'))
-            ->each(function (SplFileInfo $file) use ($filesystem) {
-                $filesystem->copy(
-                    $file->getPathname(),
-                    app_path('Notifications/'.Str::replaceLast('.stub', '.php', $file->getFilename()))
-                );
-            });
-
-        $this->components->info('Notification classes scaffolding generated successfully.');
+        $this->handlePath('Notifications',
+            __DIR__.'/stubs/init/app/Notifications',
+            'Notification');
     }
 
     protected function handleAppProvidersPath()
     {
-        if (! is_dir($directory = app_path('Providers'))) {
-            mkdir($directory, 0755, true);
-        }
-
-        $filesystem = new Filesystem;
-
-        collect($filesystem->allFiles(__DIR__.'/stubs/init/app/Providers'))
-            ->each(function (SplFileInfo $file) use ($filesystem) {
-                $filesystem->copy(
-                    $file->getPathname(),
-                    app_path('Providers/'.Str::replaceLast('.stub', '.php', $file->getFilename()))
-                );
-            });
-
-        $this->components->info('Provider classes scaffolding generated successfully.');
+        $this->handlePath('Providers',
+            __DIR__.'/stubs/init/app/Providers',
+            'Provider');
     }
 
     protected function handleAppRepositoriesPath()
     {
-        if (! is_dir($directory = app_path('Repositories'))) {
-            mkdir($directory, 0755, true);
-        }
-
-        $filesystem = new Filesystem;
-
-        collect($filesystem->allFiles(__DIR__.'/stubs/init/app/Repositories'))
-            ->each(function (SplFileInfo $file) use ($filesystem) {
-                $filesystem->copy(
-                    $file->getPathname(),
-                    app_path('Repositories/'.Str::replaceLast('.stub', '.php', $file->getFilename()))
-                );
-            });
-
-        $this->components->info('Repository classes scaffolding generated successfully.');
+        $this->handlePath('Repositories',
+            __DIR__.'/stubs/init/app/Repositories',
+            'Repository');
     }
 
     protected function handleAppRulesPath()
     {
-        if (! is_dir($directory = app_path('Rules'))) {
-            mkdir($directory, 0755, true);
-        }
-
-        $filesystem = new Filesystem;
-
-        collect($filesystem->allFiles(__DIR__.'/stubs/init/app/Rules'))
-            ->each(function (SplFileInfo $file) use ($filesystem) {
-                $filesystem->copy(
-                    $file->getPathname(),
-                    app_path('Rules/'.Str::replaceLast('.stub', '.php', $file->getFilename()))
-                );
-            });
-
-        $this->components->info('Rule classes scaffolding generated successfully.');
+        $this->handlePath('Rules',
+            __DIR__.'/stubs/init/app/Rules',
+            'Rule');
     }
 
     protected function handleAppServicesPath()
     {
-        if (! is_dir($directory = app_path('Services'))) {
-            mkdir($directory, 0755, true);
-        }
-
-        $filesystem = new Filesystem;
-
-        collect($filesystem->allFiles(__DIR__.'/stubs/init/app/Services'))
-            ->each(function (SplFileInfo $file) use ($filesystem) {
-                $filesystem->copy(
-                    $file->getPathname(),
-                    app_path('Services/'.Str::replaceLast('.stub', '.php', $file->getFilename()))
-                );
-            });
-
-        $this->components->info('Service classes scaffolding generated successfully.');
+        $this->handlePath('Services',
+            __DIR__.'/stubs/init/app/Services',
+            'Service');
     }
 
     protected function handleAppServicesAuthPath()
     {
-        if (! is_dir($directory = app_path('Services/Auth'))) {
-            mkdir($directory, 0755, true);
-        }
-
-        $filesystem = new Filesystem;
-
-        collect($filesystem->allFiles(__DIR__.'/stubs/init/app/AuthServices'))
-            ->each(function (SplFileInfo $file) use ($filesystem) {
-                $filesystem->copy(
-                    $file->getPathname(),
-                    app_path('Services/Auth/'.Str::replaceLast('.stub', '.php', $file->getFilename()))
-                );
-            });
-
-        $this->components->info('Service/Auth classes scaffolding generated successfully.');
+        $this->handlePath('Services/Auth',
+            __DIR__.'/stubs/init/app/AuthServices',
+            'Services/Auth');
     }
 
     protected function handleAppTraitsPath()
     {
-        if (! is_dir($directory = app_path('Traits'))) {
-            mkdir($directory, 0755, true);
-        }
-
-        $filesystem = new Filesystem;
-
-        collect($filesystem->allFiles(__DIR__.'/stubs/init/app/Traits'))
-            ->each(function (SplFileInfo $file) use ($filesystem) {
-                $filesystem->copy(
-                    $file->getPathname(),
-                    app_path('Traits/'.Str::replaceLast('.stub', '.php', $file->getFilename()))
-                );
-            });
-
-        $this->components->info('Trait classes scaffolding generated successfully.');
+        $this->handlePath('Traits',
+            __DIR__.'/stubs/init/app/Traits',
+            'Trait');
     }
 
     protected function handleConfigPath()
     {
-        if (! is_dir($directory = base_path('config'))) {
-            mkdir($directory, 0755, true);
-        }
-
-        $filesystem = new Filesystem;
-
-        collect($filesystem->allFiles(__DIR__.'/stubs/init/config'))
-            ->each(function (SplFileInfo $file) use ($filesystem) {
-                $filesystem->copy(
-                    $file->getPathname(),
-                    base_path('config/'.Str::replaceLast('.stub', '.php', $file->getFilename()))
-                );
-            });
-
-        $this->components->info('config files scaffolding generated successfully.');
+        $this->handlePath('config',
+            __DIR__.'/stubs/init/config',
+            'config');
     }
 
     protected function handleDatabasePath()
     {
-        if (! is_dir($directory = base_path('database/factories'))) {
-            mkdir($directory, 0755, true);
-        }
+        $this->handlePath('database/factories',
+            __DIR__.'/stubs/init/database/factories',
+            'database/factories');
 
-        if (! is_dir($directory = base_path('database/migrations'))) {
-            mkdir($directory, 0755, true);
-        }
-
-        $filesystem = new Filesystem;
-
-        collect($filesystem->allFiles(__DIR__.'/stubs/init/database/factories'))
-            ->each(function (SplFileInfo $file) use ($filesystem) {
-                $filesystem->copy(
-                    $file->getPathname(),
-                    base_path('database/factories/'.Str::replaceLast('.stub', '.php', $file->getFilename()))
-                );
-            });
-
-        $this->components->info('database/factories files scaffolding generated successfully.');
-
-        collect($filesystem->allFiles(__DIR__.'/stubs/init/database/migrations'))
-            ->each(function (SplFileInfo $file) use ($filesystem) {
-                $filesystem->copy(
-                    $file->getPathname(),
-                    base_path('database/migrations/'.Str::replaceLast('.stub', '.php', $file->getFilename()))
-                );
-            });
-
-        $this->components->info('database/migrations files scaffolding generated successfully.');
+        $this->handlePath('database/migrations',
+            __DIR__.'/stubs/init/database/migrations',
+            'database/migrations');
     }
 
     protected function handleLangPath()
     {
-        if (! is_dir($directory = base_path('lang/en'))) {
-            mkdir($directory, 0755, true);
-        }
-
-        $filesystem = new Filesystem;
-
-        collect($filesystem->allFiles(__DIR__.'/stubs/init/lang/en'))
-            ->each(function (SplFileInfo $file) use ($filesystem) {
-                $filesystem->copy(
-                    $file->getPathname(),
-                    base_path('lang/en/'.Str::replaceLast('.stub', '.php', $file->getFilename()))
-                );
-            });
-
-        $this->components->info('lang/en files scaffolding generated successfully.');
+        $this->handlePath('lang/en',
+            __DIR__.'/stubs/init/lang/en',
+            'lang/en');
     }
 
     protected function handleRoutesPath()
     {
-
-        if (! is_dir($directory = base_path('routes/app'))) {
-            mkdir($directory, 0755, true);
-        }
-
-        $filesystem = new Filesystem;
-
-        collect($filesystem->allFiles(__DIR__.'/stubs/init/routes/app'))
-            ->each(function (SplFileInfo $file) use ($filesystem) {
-                $filesystem->copy(
-                    $file->getPathname(),
-                    base_path('routes/app/'.Str::replaceLast('.stub', '.php', $file->getFilename()))
-                );
-            });
-
-        $this->components->info('routes/app files scaffolding generated successfully.');
+        $this->handlePath('routes/app',
+            __DIR__.'/stubs/init/routes/app',
+            'routes/app');
 
         file_put_contents(
             base_path('routes/web.php'),
@@ -516,81 +217,46 @@ class InitCommands extends Command
 
     protected function handleTestsPath()
     {
-        if (! is_dir($directory = base_path('tests/Feature'))) {
-            mkdir($directory, 0755, true);
-        }
-
-        $filesystem = new Filesystem;
-
-        collect($filesystem->allFiles(__DIR__.'/stubs/init/tests/Feature'))
-            ->each(function (SplFileInfo $file) use ($filesystem) {
-                $filesystem->copy(
-                    $file->getPathname(),
-                    base_path('tests/Feature/'.Str::replaceLast('.stub', '.php', $file->getFilename()))
-                );
-            });
-
-        $this->components->info('tests/Feature files scaffolding generated successfully.');
+        $this->handlePath('tests/Feature',
+            __DIR__.'/stubs/init/tests/Feature',
+            'tests/Feature');
     }
 
     protected function handleResourcesPath()
     {
-        if (! is_dir($directory = base_path('resources/views/layouts'))) {
-            mkdir($directory, 0755, true);
-        }
+        $this->handlePath('resources/views/layouts',
+            __DIR__.'/stubs/init/resources/views/layouts',
+            'resources/views/layouts');
 
-        if (! is_dir($directory = base_path('resources/views/passwords'))) {
-            mkdir($directory, 0755, true);
-        }
+        $this->handlePath('resources/views/passwords',
+            __DIR__.'/stubs/init/resources/views/passwords',
+            'resources/views/passwords');
 
-        if (! is_dir($directory = base_path('resources/views/socialite'))) {
-            mkdir($directory, 0755, true);
-        }
+        $this->handlePath('resources/views/socialite',
+            __DIR__.'/stubs/init/resources/views/socialite',
+            'resources/views/socialite');
 
-        if (! is_dir($directory = base_path('resources/views/twofactor'))) {
+        $this->handlePath('resources/views/twofactor',
+            __DIR__.'/stubs/init/resources/views/twofactor',
+            'resources/views/twofactor');
+    }
+
+    private function handlePath(string $appPath, string $stubPath, string $name)
+    {
+        if (! is_dir($directory = app_path($appPath))) {
             mkdir($directory, 0755, true);
         }
 
         $filesystem = new Filesystem;
 
-        collect($filesystem->allFiles(__DIR__.'/stubs/init/resources/views/layouts'))
-            ->each(function (SplFileInfo $file) use ($filesystem) {
+        collect($filesystem->allFiles($stubPath))
+            ->each(function (SplFileInfo $file) use ($filesystem, $appPath) {
                 $filesystem->copy(
                     $file->getPathname(),
-                    base_path('resources/views/layouts/'.Str::replaceLast('.stub', '.php', $file->getFilename()))
+                    app_path("{$appPath}/".Str::replaceLast('.stub', '.php', $file->getFilename()))
                 );
             });
 
-        $this->components->info('resources/views/layouts files scaffolding generated successfully.');
-
-        collect($filesystem->allFiles(__DIR__.'/stubs/init/resources/views/passwords'))
-            ->each(function (SplFileInfo $file) use ($filesystem) {
-                $filesystem->copy(
-                    $file->getPathname(),
-                    base_path('resources/views/passwords/'.Str::replaceLast('.stub', '.php', $file->getFilename()))
-                );
-            });
-
-        $this->components->info('resources/views/passwords files scaffolding generated successfully.');
-
-        collect($filesystem->allFiles(__DIR__.'/stubs/init/resources/views/socialite'))
-            ->each(function (SplFileInfo $file) use ($filesystem) {
-                $filesystem->copy(
-                    $file->getPathname(),
-                    base_path('resources/views/socialite/'.Str::replaceLast('.stub', '.php', $file->getFilename()))
-                );
-            });
-
-        $this->components->info('resources/views/socialite files scaffolding generated successfully.');
-
-        collect($filesystem->allFiles(__DIR__.'/stubs/init/resources/views/twofactor'))
-            ->each(function (SplFileInfo $file) use ($filesystem) {
-                $filesystem->copy(
-                    $file->getPathname(),
-                    base_path('resources/views/twofactor/'.Str::replaceLast('.stub', '.php', $file->getFilename()))
-                );
-            });
-
-        $this->components->info('resources/views/twofactor files scaffolding generated successfully.');
+        $this->components->info("{$name} classes scaffolding generated successfully.");
     }
 }

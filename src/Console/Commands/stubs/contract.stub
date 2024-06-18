@@ -19,18 +19,18 @@ interface {{ model }}RepositoryInterface
     /**
      * Fetch \App\Models\{{ model }} record by ID.
      *
-     * @param int $id
+     * @param int|string $id
      * @return \App\Models\{{ model }}|null
      */
-    public function getById(int $id): null|{{ model }};
+    public function getById(int|string $id): null|{{ model }};
 
     /**
      * Delete \App\Models\{{ model }} record by ID.
      *
-     * @param int $id
+     * @param int|string $id
      * @return void
      */
-    public function delete(int $id): void;
+    public function delete(int|string $id): void;
 
     /**
      * Create \App\Models\{{ model }} record.
@@ -52,17 +52,17 @@ interface {{ model }}RepositoryInterface
     /**
      * Update \App\Models\{{ model }} record.
      *
-     * @param int $id
+     * @param int|string $id
      * @param array $arrayDetails
      * @return int
      */
-    public function update(int $id, array $arrayDetails): int;
+    public function update(int|string $id, array $arrayDetails): int;
 
     /**
      * Update \App\Models\{{ model }} record.
      *
-     * @param int $pageSize
+     * @param int|string $pageSize
      * @return \Illuminate\Pagination\LengthAwarePaginator
      */
-    public function getPaginated(int $pageSize): LengthAwarePaginator;
+    public function getPaginated(int|string $pageSize): LengthAwarePaginator;
 }

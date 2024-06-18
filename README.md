@@ -154,6 +154,23 @@ php artisan serve
 php artisan test
 ```
 
+## NOTE
+
+### App notification helpers
+
+```php
+$userNotificationData = new UserNotificationData($user->id, $title, $text);
+$user->notify(new DatabaseNotification($userNotificationData->toObject()));
+
+$emailData = new EmailData(subject: $title, lines: [$text], from: env('MAIL_FROM_ADDRESS'),
+    remark: null, action: false, action_text: null,
+    action_url: null, attachements: null);
+$user->notify(new EmailNotification($emailData->toObject()));
+
+$smsData = new SmsData($user->name, $text);
+$user->notify(new SmsNotification($smsData->toObject()));
+```
+
 ## LICENSE
 
 The MM package is a software licensed under the [Apache 2.0 license](https://www.apache.org/licenses/LICENSE-2.0).

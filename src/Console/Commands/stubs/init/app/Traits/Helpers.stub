@@ -152,12 +152,13 @@ trait Helpers {
         return view('two-factor::login', $data);
     }
 
-    public function userLoginNotification(User $user): void
+    public function userLoginNotification(User $user, string $ip): void
     {
         if (config('api.login.notify.user', true)) {
             $time = Carbon::now()->isoFormat('Do of MMMM YYYY, h:mm:ssa');
             $deviceAndLocation = $this->getUserLoginInformation();
-            $user->notify(new UserLogin($time, $deviceAndLocation));
+            $url = env('APP_URL');
+            $user->notify(new UserLogin($time, $deviceAndLocation, $url));
         }
     }
 

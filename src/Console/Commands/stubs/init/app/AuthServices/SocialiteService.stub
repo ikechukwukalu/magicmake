@@ -75,7 +75,7 @@ class SocialiteService
         $this->throttleRequestsService->clearAttempts($request);
         $this->normaliseUserPassword($user, $userPasswordHolder);
         $this->forgetSessions();
-        $this->userLoginNotification($user);
+        $this->userLoginNotification($user, request()->ip());
 
         SocialiteLoginEvent::dispatch($user, $user->createToken($user->email),
             $userUUID);
