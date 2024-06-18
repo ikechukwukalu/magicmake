@@ -25,7 +25,6 @@
     ],
     "minimum-stability": "dev",
     "require": {
-        "beyondcode/laravel-websockets": "^1.14",
         "calebporzio/sushi": "^2.4",
         "hisorange/browser-detect": "^4.5|^5.0",
         "ikechukwukalu/clamavfileupload": "^2.0|^3.0",
