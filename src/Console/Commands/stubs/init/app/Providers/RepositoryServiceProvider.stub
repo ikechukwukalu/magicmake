@@ -2,16 +2,20 @@
 
 namespace App\Providers;
 
+use App\Contracts\AdminRepositoryInterface;
 use App\Contracts\ContactUsRepositoryInterface;
 use App\Contracts\CustomerRepositoryInterface;
+use App\Contracts\DBRepositoryInterface;
 use App\Contracts\OldPasswordRepositoryInterface;
 use App\Contracts\SocialiteLoginRepositoryInterface;
 use App\Contracts\TwoFactorLoginRepositoryInterface;
 use App\Contracts\UserRepositoryInterface;
 use App\Contracts\UserDeviceTokenRepositoryInterface;
 use App\Contracts\UserPasswordHolderRepositoryInterface;
+use App\Repositories\AdminRepository;
 use App\Repositories\ContactUsRepository;
 use App\Repositories\CustomerRepository;
+use App\Repositories\DBRepository;
 use App\Repositories\OldPasswordRepository;
 use App\Repositories\SocialiteLoginRepository;
 use App\Repositories\TwoFactorLoginRepository;
@@ -28,7 +32,9 @@ class RepositoryServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(ContactUsRepositoryInterface::class, ContactUsRepository::class);
+        $this->app->bind(AdminRepositoryInterface::class, AdminRepository::class);
         $this->app->bind(CustomerRepositoryInterface::class, CustomerRepository::class);
+        $this->app->bind(DBRepositoryInterface::class, DBRepository::class);
         $this->app->bind(OldPasswordRepositoryInterface::class, OldPasswordRepository::class);
         $this->app->bind(SocialiteLoginRepositoryInterface::class, SocialiteLoginRepository::class);
         $this->app->bind(TwoFactorLoginRepositoryInterface::class, TwoFactorLoginRepository::class);

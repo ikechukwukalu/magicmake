@@ -7,6 +7,7 @@ use App\Models\UserDeviceToken;
 use App\Notifications\FcmChannel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Http\Response;
 use Illuminate\Notifications\Notification;
 use Kreait\Firebase\Messaging\CloudMessage;
 use Kreait\Laravel\Firebase\Facades\Firebase;
@@ -61,14 +62,14 @@ class FcmNotification extends Notification implements ShouldQueue
                 $message = CloudMessage::fromArray([
                     'token' => $userDeviceToken->device_token,
                     'notification' => $this->fcmData,
-                    'data' => []
+                    'data' => $this->fcmData
                 ]);
 
                 $messaging->send($message);
             }
         },
         function(\Throwable $th) {
-            throw new FcmException($th->getMessage(), $th->getCode(), $th);
+            return responseData(false, Response::HTTP_INTERNAL_SERVER_ERROR, trans('general.unknown_error'), $th->getTrace());
         });
     }
 

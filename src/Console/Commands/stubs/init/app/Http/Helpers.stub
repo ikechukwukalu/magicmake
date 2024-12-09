@@ -8,8 +8,7 @@ use Illuminate\Http\Response as RouteResponse;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
-if( !function_exists('responseData') )
-{
+if (!function_exists('responseData')) {
     /**
      * @param string $status
      * @param int $status_code
@@ -22,8 +21,7 @@ if( !function_exists('responseData') )
     }
 }
 
-if ( !function_exists('shouldResponseBeJson') )
-{
+if (!function_exists('shouldResponseBeJson')) {
     /**
      * @param mixed $request
      * @return bool
@@ -34,8 +32,7 @@ if ( !function_exists('shouldResponseBeJson') )
     }
 }
 
-if( !function_exists('httpJsonResponse') )
-{
+if (!function_exists('httpJsonResponse')) {
     /**
      * @param ResponseData $response
      * @return \Illuminate\Http\JsonResponse
@@ -46,8 +43,7 @@ if( !function_exists('httpJsonResponse') )
     }
 }
 
-if( !function_exists('unknownErrorJsonResponse') )
-{
+if (!function_exists('unknownErrorJsonResponse')) {
     /**
      * @return \Illuminate\Http\JsonResponse
      */
@@ -55,12 +51,11 @@ if( !function_exists('unknownErrorJsonResponse') )
     {
         $message = trans('general.unknown_error');
 
-        return httpJsonResponse(responseData(false, 422, $message));
+        return httpJsonResponse(responseData(false, 400, $message));
     }
 }
 
-if ( !function_exists('diffForHumans') )
-{
+if (!function_exists('diffForHumans')) {
     /**
      * @param string $date
      * @return bool
@@ -71,8 +66,7 @@ if ( !function_exists('diffForHumans') )
     }
 }
 
-if ( !function_exists('dispatchRequest') )
-{
+if (!function_exists('dispatchRequest')) {
     /**
      * @param string $url
      * @param array $params
@@ -107,7 +101,7 @@ if (!function_exists('tryCatch')) {
     }
 }
 
-if (!function_exists('errorLog')) {
+if (!function_exists('appLog')) {
     /**
      * @param mixed $message
      * @return void
@@ -115,5 +109,55 @@ if (!function_exists('errorLog')) {
     function appLog (mixed $message): void
     {
         Log::error($message);
+    }
+}
+
+if (!function_exists('sanitizeJsonForUTF8')) {
+    /**
+     * Summary of sanitizeJsonForUTF8
+     * @param array $body
+     * @return array
+     */
+    function sanitizeJsonForUTF8(array $body): array
+    {
+        // $body = mb_convert_encoding($body, 'UTF-8', 'UTF-8');
+        return (array) json_decode(json_encode($body, JSON_INVALID_UTF8_SUBSTITUTE));
+    }
+}
+
+if (!function_exists('pageSize')) {
+    /**
+     * Page size function
+     *
+     * @param integer $pageSize
+     * @return integer
+     */
+    function pageSize(int $pageSize): int
+    {
+        $size = request()->query('size', $pageSize);
+        if (!is_numeric($size)) {
+            return $pageSize;
+        }
+
+        $size = (int)$size;
+        if ($size > 30) {
+            return $pageSize;
+        }
+
+        return $size;
+    }
+}
+
+if (!function_exists('advancedSearch')) {
+    /**
+     * Summary of advancedSearch
+     * @param string $relationship
+     * @param string $foreignKeyString
+     * @param string|array $column
+     * @return App\Actions\AdvancedSearch
+     */
+    function advancedSearch(string $relationship, string $foreignKeyString,
+        string | array $column): AdvancedSearch {
+        return new AdvancedSearch($relationship, $foreignKeyString, $column);
     }
 }

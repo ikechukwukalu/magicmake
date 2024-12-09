@@ -3,7 +3,9 @@
 namespace App\Services;
 
 use App\Actions\ResponseData;
+use App\Facades\Database;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 
 class BasicCrudService
 {
@@ -108,6 +110,13 @@ class BasicCrudService
      */
     protected function readByUserId(mixed $repository, string $index, string|int $userId, null|string|int $id = null): ResponseData
     {
+        $user = Auth::user();
+
+        if ($user->model == UserModel::CUSTOMER->value && $user->id != $userId)
+        {
+            return responseData(true, Response::HTTP_OK, trans('crud.read'), []);
+        }
+
         if (!isset($id)) {
             return responseData(true, Response::HTTP_OK, trans('crud.read'),
                     $repository->getByUserIdPaginated($userId, config("api.paginate.{$index}.pageSize")));
@@ -120,6 +129,52 @@ class BasicCrudService
 
         return responseData(true, Response::HTTP_OK, trans('crud.read'),
                     $repository->getByUserIdAndId($userId, $id));
+    }
+
+    /**
+     * Create record with DB facade.
+     *
+     * @param mixed $request
+     * @param string $table
+     * @return array
+     */
+    protected function createWithDB(mixed $request, string $table): ResponseData
+    {
+        $validated = $this->getValidatedValues($request);
+
+        if ($id = Database::create($validated, $table)) {
+            $model = Database::getById($id, $table);
+            return responseData(true, Response::HTTP_OK, trans('crud.created'), $model);
+        };
+
+        return responseData(false, Response::HTTP_INTERNAL_SERVER_ERROR,
+                    trans('crud.failed_create'));
+    }
+
+    /**
+     * Update record with DB facade.
+     *
+     * @param mixed $request
+     * @param string $table
+     * @return array
+     */
+    protected function updateWithDB(mixed $request, string $table): ResponseData
+    {
+        $validated = $this->getValidatedValues($request);
+
+        if (!Database::getById($validated['id'], $table)) {
+            return responseData(false, Response::HTTP_INTERNAL_SERVER_ERROR,
+                        trans('crud.failed_update'));
+        }
+
+        if (Database::update($validated['id'], $validated, $table) > 0)
+        {
+            $model = Database::getById($validated['id'], $table);
+            return responseData(true, Response::HTTP_OK, trans('crud.updated'),$model);
+        }
+
+        return responseData(false, Response::HTTP_INTERNAL_SERVER_ERROR,
+                    trans('crud.failed_update'));
     }
 
     /**
