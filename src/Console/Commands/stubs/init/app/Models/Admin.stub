@@ -23,4 +23,9 @@ class Admin extends User
             set: fn (string $value) => Admin::class,
         );
     }
+
+    public function url(): string
+    {
+        return env('APP_URL');
+    }
 }

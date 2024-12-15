@@ -23,4 +23,9 @@ class Customer extends User
             set: fn (string $value) => Customer::class,
         );
     }
+
+    public function url(): string
+    {
+        return env('APP_URL');
+    }
 }
