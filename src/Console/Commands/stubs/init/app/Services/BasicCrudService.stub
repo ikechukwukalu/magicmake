@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Actions\ResponseData;
+use App\Enums\UserModel;
 use App\Facades\Database;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;

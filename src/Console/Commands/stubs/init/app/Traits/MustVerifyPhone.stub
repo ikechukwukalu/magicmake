@@ -36,7 +36,7 @@ trait MustVerifyPhone
      */
     public function sendPhoneVerificationNotification(string $otp, User $user)
     {
-        $this->notify(new VerifyPhone($otp, $user));
+        $this->notify(new VerifyPhone($otp, $user->toArray()));
     }
 
     /**

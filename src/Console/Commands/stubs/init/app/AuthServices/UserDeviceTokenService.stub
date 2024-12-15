@@ -19,7 +19,7 @@ class UserDeviceTokenService extends BasicCrudService
     /**
      * Handle the create request.
      *
-     * @param  \App\Http\Requests\UserDeviceTokenCreateRequest $request
+     * @param  \App\Http\Requests\Auth\UserDeviceTokenCreateRequest $request
      * @return \App\Actions\ResponseData
      */
     public function handleCreate(UserDeviceTokenCreateRequest $request): ResponseData
@@ -33,7 +33,7 @@ class UserDeviceTokenService extends BasicCrudService
     /**
      * Handle the update request.
      *
-     * @param  \App\Http\Requests\UserDeviceTokenUpdateRequest $request
+     * @param  \App\Http\Requests\Auth\UserDeviceTokenUpdateRequest $request
      * @return \App\Actions\ResponseData
      */
     public function handleUpdate(UserDeviceTokenUpdateRequest $request): ResponseData
@@ -44,7 +44,7 @@ class UserDeviceTokenService extends BasicCrudService
     /**
      * Handle the delete request.
      *
-     * @param  \App\Http\Requests\UserDeviceTokenDeleteRequest $request
+     * @param  \App\Http\Requests\Auth\UserDeviceTokenDeleteRequest $request
      * @return \App\Actions\ResponseData
      */
     public function handleDelete(UserDeviceTokenDeleteRequest $request): ResponseData
