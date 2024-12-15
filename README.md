@@ -12,8 +12,8 @@ A Laravel scaffolding package for an opinionated Laravel coding style.
 
 ## REQUIREMENTS
 
-- PHP 7.3+
-- Laravel 8+
+- PHP 8.2+
+- Laravel 11+
 
 ## STEPS TO INSTALL
 
@@ -21,15 +21,19 @@ A Laravel scaffolding package for an opinionated Laravel coding style.
 composer require ikechukwukalu/magicmake
 ```
 
+## SET UP LARAVEL
+
+``` shell
+php artisan install:api
+```
+
 ## INIT CLASSES
 
-To initialize prepared classes for a new laravel app.
+To initialize prepared classes for a new laravel app. This would only run when `env('APP_ENV') === local` and `env(MAGIC_INIT_LOCK) === false`.
 
 ``` shell
 php artisan magic:init
 ```
-
-This would only run when `env('APP_ENV') === local` and `env(MAGIC_INIT_LOCK) === false`.
 
 ## MODEL BASED CLASSES
 
@@ -118,23 +122,26 @@ After that run:
 composer dump-autoload
 ```
 
-Add to the `config/app.php`.
+Add to `bootstrap/providers.php`.
 
 ```php
 /*
     * Package Service Providers...
     */
+App\Providers\EventServiceProvider::class,
 App\Providers\MacroServiceProvider::class,
 App\Providers\RepositoryServiceProvider::class,
 ```
 
-Add to `app/Http/Kernel.php` in `protected $middlewareAliases`
+Add to `bootstrap/app.php`
 
 ```php
-protected $middlewareAliases = [
-    ....
-    'check.email.verification' => \App\Http\Middleware\CheckEmailVerification::class,
-]
+    ->withMiddleware(function (Middleware $middleware) {
+        //
+        $middleware->alias([
+            'check.email.verification' => \App\Http\Middleware\CheckEmailVerification::class,
+        ]);
+    })
 ```
 
 ### Project setup
