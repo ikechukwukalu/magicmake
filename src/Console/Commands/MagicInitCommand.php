@@ -40,6 +40,7 @@ class MagicInitCommand extends InitCommands
         $this->handleAppEnumsPath();
         $this->handleAppEventsPath();
         $this->handleAppExceptionsPath();
+        $this->handleAppFacadesPath();
         $this->handleAppHttpPath();
         $this->handleAppHttpControllersPath();
         $this->handleAppHttpControllersAuthPath();
