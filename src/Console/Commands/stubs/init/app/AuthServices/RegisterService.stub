@@ -22,7 +22,7 @@ class RegisterService
     /**
      * Handle the request.
      *
-     * @param  \App\Http\Requests\RegisterRequest  $request
+     * @param  \App\Http\Requests\Auth\RegisterRequest  $request
      * @return \App\Actions\ResponseData
      */
     public function handleRegistration(RegisterRequest $request): ResponseData

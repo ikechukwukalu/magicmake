@@ -105,6 +105,25 @@ class InitCommands extends Command
         $this->components->info('Exception classes scaffolding generated successfully.');
     }
 
+    protected function handleAppFacadesPath()
+    {
+        if (! is_dir($directory = app_path('Facades'))) {
+            mkdir($directory, 0755, true);
+        }
+
+        $filesystem = new Filesystem;
+
+        collect($filesystem->allFiles(__DIR__.'/stubs/init/app/Facades'))
+            ->each(function (SplFileInfo $file) use ($filesystem) {
+                $filesystem->copy(
+                    $file->getPathname(),
+                    app_path('Facades/'.Str::replaceLast('.stub', '.php', $file->getFilename()))
+                );
+            });
+
+        $this->components->info('Facades classes scaffolding generated successfully.');
+    }
+
     protected function handleAppHttpPath()
     {
         if (! is_dir($directory = app_path('Http'))) {
