@@ -126,7 +126,7 @@ class {{ model }}Controller extends Controller
      */
     public function read({{ model }}ReadRequest $request, null|string|int $id = null): JsonResponse
     {
-        return $this->_read($this->{{ modelVariable }}Service, $id);
+        return $this->_read($request, $this->{{ modelVariable }}Service, $id);
     }
 
 }

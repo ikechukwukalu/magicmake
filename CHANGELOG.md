@@ -1,4 +1,8 @@
-# v2.0.0
+# v2.0.1
+
+- Updated package to support Laravel view
+
+## v2.0.0
 
 - Updated package to support Laravel 11
 

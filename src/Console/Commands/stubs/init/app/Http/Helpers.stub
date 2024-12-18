@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response as RouteResponse;
+use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
@@ -29,7 +30,14 @@ if (!function_exists('shouldResponseBeJson')) {
      */
     function shouldResponseBeJson(mixed $request): bool
     {
-        return $request->wantsJson() || $request->ajax();
+        if ($request?->wantsJson()) {
+            return true;
+        }
+        if ($request?->ajax()) {
+            return true;
+        }
+
+        return false;
     }
 }
 
@@ -44,6 +52,38 @@ if (!function_exists('httpJsonResponse')) {
     }
 }
 
+if (!function_exists('httpViewResponse')) {
+    /**
+     * @param ResponseData $response
+     * @param string $component
+     * @return \Illuminate\Contracts\View\View
+     */
+    function httpViewResponse(ResponseData $response, string $component): View
+    {
+        return view($component, $response->toArray());
+    }
+}
+
+if (!function_exists('httpResponseFormat')) {
+    /**
+     * @param ResponseData $response
+     * @param string|null $component
+     * @return \Illuminate\Contracts\View\View
+     */
+    function httpResponseFormat(mixed $request, ResponseData $response, string|null $component = null): JsonResponse|View
+    {
+        if (!$component) {
+            return httpJsonResponse($response);
+        }
+
+        if (shouldResponseBeJson($request)) {
+            return httpJsonResponse($response);
+        }
+
+        return httpViewResponse($response, $component);
+    }
+}
+
 if (!function_exists('unknownErrorJsonResponse')) {
     /**
      * @return \Illuminate\Http\JsonResponse
@@ -53,6 +93,37 @@ if (!function_exists('unknownErrorJsonResponse')) {
         $message = trans('general.unknown_error');
 
         return httpJsonResponse(responseData(false, 400, $message));
+    }
+}
+
+if (!function_exists('unknownErrorViewResponse')) {
+    /**
+     * @return \Illuminate\Contracts\View\View
+     */
+    function unknownErrorViewResponse(): View
+    {
+        $message = trans('general.unknown_error');
+
+        return httpViewResponse(responseData(false, 400, $message), 'errors/500');
+    }
+}
+
+if (!function_exists('unknownErrorResponseFormat')) {
+    /**
+     * @param ResponseData $response
+     * @param string|null $component
+     * @return \Illuminate\Contracts\View\View
+     */
+    function unknownErrorResponseFormat(mixed $request): JsonResponse|View
+    {
+        $message = trans('general.unknown_error');
+        $response = responseData(false, 400, $message);
+
+        if (shouldResponseBeJson($request)) {
+            return httpJsonResponse($response);
+        }
+
+        return httpViewResponse($response, 'errors/500');
     }
 }
 
