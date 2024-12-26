@@ -1,4 +1,8 @@
-# v2.0.1
+# v2.0.2
+
+- Fixed bugs
+
+## v2.0.1
 
 - Updated package to support Laravel view
 
