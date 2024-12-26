@@ -127,7 +127,7 @@ class UserDeviceTokenController extends Controller
      */
     public function read(UserDeviceTokenReadRequest $request, null|string|int $id = null): JsonResponse
     {
-        return $this->_read($this->userDeviceTokenService, $id);
+        return $this->_read($request, $this->userDeviceTokenService, $id);
     }
 
 }

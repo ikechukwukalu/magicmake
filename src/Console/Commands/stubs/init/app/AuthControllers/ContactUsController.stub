@@ -131,6 +131,6 @@ class ContactUsController extends Controller
      */
     public function read(ContactUsReadRequest $request, null|string|int $id = null): JsonResponse
     {
-        return $this->_read($this->contactUsService, $id);
+        return $this->_read($request, $this->contactUsService, $id);
     }
 }
