@@ -15,9 +15,14 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->string('password')->nullable()->change();
+            $table->string('otp')->nullable()->after('password');
             $table->string('phone')->after('email');
             $table->string('model')->after('email_verified_at');
             $table->timestamp('phone_verified_at')->after('email_verified_at')->nullable();
+            $table->timestamp('kyc_verified_at')->nullable();
+            $table->timestamp('suspended_at')->nullable();
+            $table->timestamp('deactivated_at')->nullable();
+            $table->timestamp('otp_expires_at')->after('deactivated_at')->nullable();
             $table->enum('socialite_signup', [0, 1])->after('password')->default(0);
             $table->enum('form_signup', [0, 1])->after('password')->default(0);
             $table->enum('active', [0, 1])->after('password')->default(1);

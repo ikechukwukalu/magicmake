@@ -3,12 +3,13 @@
 namespace App\Services\Auth;
 
 use App\Contracts\UserRepositoryInterface;
+use App\Events\EmailVerification;
 use App\Events\PhoneVerification;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
-use App\Events\EmailVerification;
+use Illuminate\Support\Facades\Hash;
 
 class VerificationService
 {
@@ -82,14 +83,26 @@ class VerificationService
      */
     public function handleVerifyUserPhone(Request $request): JsonResponse
     {
-        if (!$request->id) {
+        if (!$request->id || !$request->otp) {
             return httpJsonResponse(responseData(false, Response::HTTP_FORBIDDEN,
                     trans('verify.url_invalid')));
         }
 
         if (!$user = $this->userRepository->getById($request->id)) {
-            return httpJsonResponse(responseData(false, Response::HTTP_INTERNAL_SERVER_ERROR,
-                    trans('user.not_found')));
+            return httpJsonResponse(responseData(false, Response::HTTP_FORBIDDEN,
+                    trans('verify.url_invalid')));
+        }
+
+        if ($user->otp_expires_at < now()) {
+            return httpJsonResponse(responseData(false, Response::HTTP_FORBIDDEN,
+                    trans('verify.url_invalid')));
+        }
+
+        $otp = $request->otp;
+
+        if (!Hash::check($otp, $user->otp)) {
+            return httpJsonResponse(responseData(false, Response::HTTP_FORBIDDEN,
+                    trans('verify.url_invalid')));
         }
 
         if (!$user->hasVerifiedPhone()) {
@@ -117,7 +130,18 @@ class VerificationService
                     trans('verify.already_verified')));
         }
 
-        PhoneVerification::dispatch($user, rand(1000, 9999));
+        $otp = rand(10000, 99999);
+
+        $this->userRepository->update($user->id, [
+            'otp' => Hash::make($otp),
+            'otp_expires_at' => now()->addMinutes(5),
+        ]);
+
+        if (!app()->isProduction()) {
+            appLog("$user->phone $otp");
+        }
+
+        PhoneVerification::dispatch($user, $otp);
 
         return httpJsonResponse(responseData(true, Response::HTTP_OK,
                 trans('verify.sent_otp')));

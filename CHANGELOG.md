@@ -1,4 +1,8 @@
-# v2.0.2
+# v2.0.3
+
+- Updated phone verification
+
+## v2.0.2
 
 - Fixed bugs
 

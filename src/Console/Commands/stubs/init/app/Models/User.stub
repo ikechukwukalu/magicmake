@@ -30,10 +30,17 @@ class User extends Authenticatable implements TwoFactorAuthenticatable, MustVeri
         'email',
         'phone',
         'password',
+        'otp',
         'model',
         'two_factor',
         'socialite_signup',
         'form_signup',
+        'email_verified_at',
+        'kyc_verified_at',
+        'phone_verified_at',
+        'suspended_at',
+        'deactivated_at',
+        'otp_expires_at',
         'active',
     ];
 
@@ -44,6 +51,8 @@ class User extends Authenticatable implements TwoFactorAuthenticatable, MustVeri
      */
     protected $hidden = [
         'password',
+        'otp',
+        'pin',
         'remember_token',
     ];
 
@@ -55,11 +64,16 @@ class User extends Authenticatable implements TwoFactorAuthenticatable, MustVeri
     protected $casts = [
         'email_verified_at' => 'datetime',
         'phone_verified_at' => 'datetime',
+        'kyc_completed_at' => 'datetime',
+        'suspended_at' => 'datetime',
+        'deactivated_at' => 'datetime',
+        'otp_expires_at' => 'datetime',
         'active' => 'boolean',
         'two_factor' => 'boolean',
         'socialite_signup' => 'boolean',
         'form_signup' => 'boolean',
         'password' => 'hashed',
+        'otp' => 'hashed',
     ];
 
     public function scopeCustomer(Builder $query): void

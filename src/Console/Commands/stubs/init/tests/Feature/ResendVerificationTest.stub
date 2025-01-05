@@ -8,7 +8,7 @@ use Tests\TestCase;
 
 use App\Models\User;
 
-class ResendVerifyEmailTest extends TestCase
+class ResendVerificationTest extends TestCase
 {
     use WithFaker;
 
@@ -26,6 +26,20 @@ class ResendVerifyEmailTest extends TestCase
         $this->actingAs($user);
 
         $response = $this->postJson(route('verification.resend'));
+        $responseArray = $response->json();
+
+        $response->assertOk();
+        $this->assertTrue($responseArray['success']);
+    }
+    public function testResendVerifyPhone()
+    {
+        $user = User::factory()->create([
+            'phone_verified_at' => null
+        ]);
+
+        $this->actingAs($user);
+
+        $response = $this->postJson(route('verification.resend.phone'));
         $responseArray = $response->json();
 
         $response->assertOk();

@@ -140,6 +140,8 @@ Add to `bootstrap/app.php`
         //
         $middleware->alias([
             'check.email.verification' => \App\Http\Middleware\CheckEmailVerification::class,
+            'check.user.is.admin' => \App\Http\Middleware\CheckIfUserIsAdmin::class,
+            'check.phone.verification' => \App\Http\Middleware\CheckPhoneVerification::class,
         ]);
     })
 ```

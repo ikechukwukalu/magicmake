@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('user')->group(function () {
 
     Route::post('resend/verify/email', [VerificationController::class, 'resendUserEmailVerification'])->name('verification.resend');
+    Route::post('resend/verify/phone', [VerificationController::class, 'resendUserPhoneVerification'])->name('verification.resend.phone');
 
     Route::middleware(['check.email.verification'])->group(function () {
 
