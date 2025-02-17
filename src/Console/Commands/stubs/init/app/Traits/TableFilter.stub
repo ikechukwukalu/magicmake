@@ -3,12 +3,14 @@
 namespace App\Traits;
 
 use App\Actions\AdvancedSearch;
+use App\Enums\HeaderKey;
+use App\Facades\Database;
 use Illuminate\Database\Eloquent\Builder;
 
 trait TableFilter
 {
 
-    public function scopeSearch(Builder $query, string|array|AdvancedSearch $column): void
+    public function scopeSearch(Builder $query, string|array|AdvancedSearch $column, bool $encrypted = false): void
     {
         $search = request()->query('search');
 
@@ -25,31 +27,58 @@ trait TableFilter
 
                 $query->orWhere($col, "LIKE", "%{$search}%");
             }
+            return;
         }
 
         if (is_string($column)) {
             $query->where($column, "LIKE", "%{$search}%");
+            return;
         }
 
         if ($column instanceof AdvancedSearch) {
+            $q = $query;
+            if ($column->getParent()) {
+                if (!$q->first()) {
+                    return;
+                }
 
-            if (!$model = $query->with([$column->getRelationship()])
-                    ->first()?->{$column->getRelationship()})
-            {
+                if (!$ids = $q->first()->pluck('id')) {
+                    return;
+                }
+
+                if ($model = Database::queryBuilder($column->getParent())
+                    ->whereIn($column->getForeignString(), $ids)
+                    ->where('mode', request()->header(HeaderKey::MODE->value))
+                    ->get())
+                {
+
+                    if ($foreignKeyValue = $column->search($model, $search)) {
+                        $query->where('id', $foreignKeyValue);
+                        return;
+                    }
+
+                }
+
                 return;
             }
 
-            if ($foreignKeyValues = $column->search($model, $search)) {
-                $query->whereIn($column->getForeignString(), $foreignKeyValues);
-            }
+            if ($model = $q->with([$column->getRelationship()])
+                    ->first()?->{$column->getRelationship()})
+            {
 
-            return;
+                if ($foreignKeyValues = $column->search($model, $search)) {
+                    $query->whereIn($column->getForeignString(), $foreignKeyValues);
+                    return;
+                }
+
+                return;
+            }
         }
     }
 
     public function scopeDate(Builder $query, string $dateColumn = 'created_at'): void
     {
-        $whiteList = ['created_at', 'paid_at', 'shipment_processed_at'];
+        $whiteList = ['created_at', 'updated_at'];
         $dateColumn = request()->query('date', 'created_at');
 
         if (!in_array(strtolower($dateColumn), $whiteList))

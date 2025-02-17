@@ -226,10 +226,11 @@ if (!function_exists('advancedSearch')) {
      * @param string $relationship
      * @param string $foreignKeyString
      * @param string|array $column
+     * @param string|null $parent
      * @return App\Actions\AdvancedSearch
      */
     function advancedSearch(string $relationship, string $foreignKeyString,
-        string | array $column): AdvancedSearch {
-        return new AdvancedSearch($relationship, $foreignKeyString, $column);
+        string | array $column, string|null $parent = null): AdvancedSearch {
+        return new AdvancedSearch($relationship, $foreignKeyString, $column, $parent);
     }
 }

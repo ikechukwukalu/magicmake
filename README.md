@@ -185,6 +185,21 @@ php artisan test
 
 ## NOTE
 
+### Publish notification blade
+
+Add the following line above this code line `@if ($emailData->action)` in the `notification.blade.php` file:
+
+```html
+@if (isset($emailData->highlightText))
+@component('mail::panel', ['style' => 'background-color: #f0f8ff; border-radius: 0.5rem; padding: 16px;text-align: center'])
+<div style="text-align: center;">
+{{ $emailData->highlightText }}
+</div>
+@endcomponent
+@endif
+
+```
+
 ### App notification helpers
 
 ```php
@@ -198,6 +213,36 @@ $user->notify(new EmailNotification($emailData->toObject()));
 
 $smsData = new SmsData($user->name, $text);
 $user->notify(new SmsNotification($smsData->toObject()));
+```
+
+### Advanced search and table filter helpers
+
+Sample usage:
+
+```php
+public function getPaginated(int $pageSize): LengthAwarePaginator
+{
+    /**
+     * Search a parent table via the user_id foreign key on the user_deliveries table
+     */
+    $search = advancedSearch('user', 'user_id', ['unit_number', 'name', 'email', 'first_name', 'last_name', 'middle_name']);
+
+    /**
+     * Search a child table via the user_delivery_id foreign key on the user_delivery_items table
+     */
+    $search2 = advancedSearch('userDeliveryItems', 'user_delivery_id', ['tracking_number', 'name', 'delivery_vendor'], 'user_delivery_items');
+
+    return UserDelivery::with(['user', 'userDeliveryItems'])
+                ->search($search)
+                ->search($search2)
+                ->orWhere(function($query) {
+                    $query->search('ref_number');
+                })
+                ->order()
+                ->date()
+                ->filter($this->whiteList)
+                ->paginate(pageSize($pageSize));
+}
 ```
 
 ## LICENSE
