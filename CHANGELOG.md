@@ -1,4 +1,9 @@
-# v2.0.3
+# v2.0.4
+
+- Added highlighted text for email notification
+- Add functionality to search child tables via advanced search
+
+## v2.0.3
 
 - Updated phone verification
 
