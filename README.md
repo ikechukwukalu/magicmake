@@ -12,8 +12,18 @@ A Laravel scaffolding package for an opinionated Laravel coding style.
 
 ## REQUIREMENTS
 
-- PHP 8.2+
-- Laravel 11+
+The published v3.0.0 package declares:
+
+- PHP 7.3 or newer.
+- Laravel 8 through Laravel 12 component constraints.
+
+These values describe the published Composer constraints. They do not imply that every PHP/Laravel combination has been verified by a version matrix. Review the constraints of the exact package version selected by Composer.
+
+## SOURCE AND RELEASE POLICY
+
+Development, tests, feature branches, and pull requests are maintained in the private `ikechukwukalu/magic-make` development source repository. This public repository is the release destination for reviewed package versions.
+
+Documentation in this repository describes published behavior. Planned generation profiles, modular target paths and namespaces, safer initialization, conflict preflight, and explicit response modes remain unreleased until a separately authorized package synchronization and release.
 
 ## STEPS TO INSTALL
 
