@@ -23,7 +23,28 @@ These values describe the published Composer constraints. They do not imply that
 
 Development, tests, feature branches, and pull requests are maintained in the private `ikechukwukalu/magic-make` development source repository. This public repository is the release destination for reviewed package versions.
 
-Documentation in this repository describes published behavior. Planned generation profiles, modular target paths and namespaces, safer initialization, conflict preflight, and explicit response modes remain unreleased until a separately authorized package synchronization and release.
+Documentation in this repository distinguishes published behavior from approved development work. Generation safety, profiles, modular target paths and namespaces, and explicit response modes remain unreleased until a separately authorized package synchronization and release.
+
+## UNRELEASED DEVELOPMENT CONTRACT
+
+The development source has an approved Phase 2 contract for future package synchronization. These options are **not available in the published v3.0.0 package**.
+
+- `lean`: model, migration, factory, and focused model test.
+- `standard`: the existing opinionated model, migration, contract, repository, service, controller, four requests, API route, factory, and feature-test structure. Standard remains the default.
+- `enterprise`: Standard plus a feature service provider, repository binding, and modular route/migration registration.
+
+The approved command shape is:
+
+```shell
+php artisan magic:model Invoice \
+    --profile=enterprise \
+    --path=app/Domains/Billing \
+    --namespace='App\Domains\Billing'
+```
+
+Target paths are project-relative. When only `--path` is supplied, the namespace is derived from Composer PSR-4 mappings. When only `--namespace` is supplied, the path is derived only if the mapping is unambiguous. Mismatched, unsafe, or unmapped path/namespace combinations fail during preflight. Selected modular artifacts—including routes, providers, factories, migrations, and tests—remain inside the target boundary.
+
+Modular Standard routes require explicit host-application loading. Enterprise generates a provider that binds the repository and loads boundary-local routes and migrations; the host application must explicitly register that provider. The generator does not silently mutate application provider configuration.
 
 ## STEPS TO INSTALL
 
