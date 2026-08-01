@@ -1,4 +1,9 @@
-# v2.0.4
+# v3.0.0
+
+- Added Laravel 12 component constraints and compatible dependency generations.
+- The release declares Laravel 8 through Laravel 12 constraints; a complete compatibility matrix was not included in this release.
+
+## v2.0.4
 
 - Added highlighted text for email notification
 - Add functionality to search child tables via advanced search
