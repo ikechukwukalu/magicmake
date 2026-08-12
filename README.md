@@ -17,8 +17,6 @@ This release requires:
 - PHP 8.2 or newer.
 - Laravel 12.
 
-Optional integrations referenced by generated application scaffolding must be installed separately when used.
-
 ## SOURCE AND RELEASE POLICY
 
 Development, tests, feature branches, and pull requests are maintained in the private `ikechukwukalu/magic-make` development source repository. This public repository is the release destination for reviewed package versions.

@@ -6,12 +6,12 @@
 
 These items are not part of published v3.0.0 and require a separately authorized source synchronization and release.
 
-## Unreleased
+## v4.0.0
 
 - Require PHP 8.2 or newer and Laravel 12 components.
 - Test the package with Orchestra Testbench 10 and PHPUnit 11.
 - Verify the test suite on PHP 8.2, 8.3, and 8.4.
-- Stop forcing optional scaffolding integrations to be installed with the generator package.
+- Require the Laravel 12-compatible releases of ClamavFileUpload, MakeService, and RequirePin.
 - Resolve stable dependency releases by default and remove the unused ReactPHP HTTP dependency.
 - Allow API scaffolding in a fresh Laravel 12 application before `routes/api.php` exists.
 
