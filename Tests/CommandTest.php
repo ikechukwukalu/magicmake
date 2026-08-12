@@ -2,38 +2,114 @@
 
 namespace Ikechukwukalu\Magicmake\Tests;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Facades\Artisan;
 
 class CommandTest extends TestCase
 {
-    use RefreshDatabase;
+    private const MODEL = 'LaravelTwelveProbe';
 
-    public function test_fires_make_service_command(): void
+    private Filesystem $files;
+
+    private string $apiRoutes;
+
+    private bool $apiRouteExisted;
+
+    public function setUp(): void
     {
-        $this->artisan('magic:init')->assertSuccessful();
+        parent::setUp();
 
-        $this->artisan('magic:model DeliveryType')->assertSuccessful();
+        $this->files = new Filesystem;
+        $this->apiRouteExisted = $this->files->exists(base_path('routes/api.php'));
+        $this->apiRoutes = $this->apiRouteExisted
+            ? $this->files->get(base_path('routes/api.php'))
+            : '';
+        $this->removeGeneratedArtifacts();
+    }
 
-        $this->artisan('magic:contract DeliveryType --variable=deliveryType --underscore=delivery_type')->assertSuccessful();
+    protected function tearDown(): void
+    {
+        $this->removeGeneratedArtifacts();
 
-        $this->artisan('magic:repository DeliveryType --variable=deliveryType --underscore=delivery_type')->assertSuccessful();
+        if ($this->apiRouteExisted) {
+            $this->files->put(base_path('routes/api.php'), $this->apiRoutes);
+        } else {
+            $this->files->delete(base_path('routes/api.php'));
+        }
 
-        $this->artisan('magic:service DeliveryType --variable=deliveryType --underscore=delivery_type')->assertSuccessful();
+        parent::tearDown();
+    }
 
-        $this->artisan('magic:controller DeliveryType --variable=deliveryType --underscore=delivery_type')->assertSuccessful();
+    public function test_model_command_generates_the_complete_scaffold_on_laravel_12(): void
+    {
+        $this->artisan('magic:model', ['name' => self::MODEL])
+            ->assertSuccessful();
 
-        $this->artisan('magic:createRequest DeliveryType --variable=deliveryType --underscore=delivery_type')->assertSuccessful();
+        foreach ($this->expectedArtifacts() as $path) {
+            $this->assertFileExists($path);
+            $this->assertStringContainsString(self::MODEL, $this->files->get($path));
+        }
 
-        $this->artisan('magic:updateRequest DeliveryType --variable=deliveryType --underscore=delivery_type')->assertSuccessful();
+        $this->assertNotEmpty($this->generatedMigrations());
+        $this->assertStringContainsString(
+            'LaravelTwelveProbeController::class',
+            $this->files->get(base_path('routes/api.php'))
+        );
+    }
 
-        $this->artisan('magic:deleteRequest DeliveryType --variable=deliveryType --underscore=delivery_type')->assertSuccessful();
+    public function test_package_commands_are_registered(): void
+    {
+        $commands = Artisan::all();
 
-        $this->artisan('magic:readRequest DeliveryType --variable=deliveryType --underscore=delivery_type')->assertSuccessful();
+        foreach ([
+            'magic:init',
+            'magic:model',
+            'magic:contract',
+            'magic:repository',
+            'magic:service',
+            'magic:controller',
+            'magic:createRequest',
+            'magic:updateRequest',
+            'magic:deleteRequest',
+            'magic:readRequest',
+            'magic:api',
+            'magic:test',
+            'magic:factory',
+        ] as $command) {
+            $this->assertArrayHasKey($command, $commands);
+        }
+    }
 
-        $this->artisan('magic:api DeliveryType --variable=deliveryType --underscore=delivery_type')->assertSuccessful();
+    /** @return array<int, string> */
+    private function expectedArtifacts(): array
+    {
+        return [
+            app_path('Models/'.self::MODEL.'.php'),
+            app_path('Contracts/'.self::MODEL.'RepositoryInterface.php'),
+            app_path('Repositories/'.self::MODEL.'Repository.php'),
+            app_path('Services/'.self::MODEL.'Service.php'),
+            app_path('Http/Controllers/'.self::MODEL.'Controller.php'),
+            app_path('Http/Requests/'.self::MODEL.'CreateRequest.php'),
+            app_path('Http/Requests/'.self::MODEL.'UpdateRequest.php'),
+            app_path('Http/Requests/'.self::MODEL.'DeleteRequest.php'),
+            app_path('Http/Requests/'.self::MODEL.'ReadRequest.php'),
+            base_path('tests/Feature/'.self::MODEL.'Test.php'),
+            database_path('factories/'.self::MODEL.'Factory.php'),
+        ];
+    }
 
-        $this->artisan('magic:test DeliveryType --variable=deliveryType --underscore=delivery_type')->assertSuccessful();
+    /** @return array<int, string> */
+    private function generatedMigrations(): array
+    {
+        return $this->files->glob(database_path('migrations/*_create_laravel_twelve_probes_table.php'));
+    }
 
-        $this->artisan('magic:factory DeliveryType --variable=deliveryType --underscore=delivery_type')->assertSuccessful();
+    private function removeGeneratedArtifacts(): void
+    {
+        if (! isset($this->files)) {
+            return;
+        }
+
+        $this->files->delete(array_merge($this->expectedArtifacts(), $this->generatedMigrations()));
     }
 }

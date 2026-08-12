@@ -12,12 +12,12 @@ A Laravel scaffolding package for an opinionated Laravel coding style.
 
 ## REQUIREMENTS
 
-The published v3.0.0 package declares:
+This release requires:
 
-- PHP 7.3 or newer.
-- Laravel 8 through Laravel 12 component constraints.
+- PHP 8.2 or newer.
+- Laravel 12.
 
-These values describe the published Composer constraints. They do not imply that every PHP/Laravel combination has been verified by a version matrix. Review the constraints of the exact package version selected by Composer.
+Optional integrations referenced by generated application scaffolding must be installed separately when used.
 
 ## SOURCE AND RELEASE POLICY
 

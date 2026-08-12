@@ -9,10 +9,10 @@ abstract class TestCase extends BaseTestCase
 {
     public function setUp(): void
     {
-      parent::setUp();
+        parent::setUp();
     }
 
-    protected function defineDatabaseMigrations()
+    protected function defineDatabaseMigrations(): void
     {
         $this->loadLaravelMigrations();
     }

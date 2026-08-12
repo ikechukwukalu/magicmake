@@ -4,7 +4,6 @@ namespace Ikechukwukalu\Magicmake\Console\Commands;
 
 use Illuminate\Console\Concerns\CreatesMatchingTest;
 use Illuminate\Console\GeneratorCommand;
-use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Str;
 use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -131,11 +130,11 @@ class MagicApiCommand extends GeneratorCommand
     {
         $name = $this->qualifyClass($this->getNameInput());
         $stub = $this->buildClass($name);
+        $path = base_path('routes/api.php');
 
-        file_put_contents(
-            base_path('routes/api.php'),
-            $stub,
-            FILE_APPEND
-        );
+        $this->files->ensureDirectoryExists(dirname($path));
+        $this->files->append($path, $stub);
+
+        return self::SUCCESS;
     }
 }
