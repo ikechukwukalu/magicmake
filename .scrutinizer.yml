@@ -2,8 +2,7 @@ build:
   nodes:
     analysis-and-tests:
       environment:
-        php:
-          version: '8.4'
+        php: '8.3'
       dependencies:
         override:
           - composer update --with orchestra/testbench:^10.0 --with illuminate/console:^12.0 --with illuminate/support:^12.0 --prefer-dist --no-interaction --no-progress
