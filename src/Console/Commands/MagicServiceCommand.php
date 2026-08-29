@@ -48,11 +48,11 @@ class MagicServiceCommand extends GeneratorCommand
      * @param  string  $name
      * @return string
      */
-    protected function buildClass($name)
+    protected function buildClass($name): string
     {
         if ($this->alreadyExists(str_replace('.php', '', $this->getPath($name)))) {
             $this->components->error("This Service already exists");
-            return;
+            return '';
         }
 
         $ary = explode("\\", $name);

@@ -1,0 +1,8 @@
+title: Magic Make Documentation
+description: Installation, generation, compatibility, and upgrade guidance for the Magic Make Laravel package.
+url: https://ikechukwukalu.github.io
+baseurl: /magicmake
+theme: jekyll-theme-primer
+markdown: kramdown
+exclude:
+  - vendor

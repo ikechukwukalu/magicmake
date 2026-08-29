@@ -13,39 +13,41 @@ class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
-    protected function _create(mixed $request, mixed $service, string|null $component = null): JsonResponse|View
+    protected string|null $responseMode = null;
+
+    protected function _create(mixed $request, mixed $service, string|null $component = null, string|null $methodResponseMode = null): JsonResponse|View
     {
         if ($data = $service->handleCreate($request)) {
-            return httpResponseFormat($request, $data, $component);
+            return httpResponseFormat($request, $data, $component, $methodResponseMode, $this->responseMode);
         };
 
-        return unknownErrorResponseFormat($request);
+        return unknownErrorResponseFormat($request, $methodResponseMode, $this->responseMode);
     }
 
-    protected function _update(mixed $request, mixed $service, string|null $component = null): JsonResponse|View
+    protected function _update(mixed $request, mixed $service, string|null $component = null, string|null $methodResponseMode = null): JsonResponse|View
     {
         if ($data = $service->handleUpdate($request)) {
-            return httpResponseFormat($request, $data, $component);
+            return httpResponseFormat($request, $data, $component, $methodResponseMode, $this->responseMode);
         };
 
-        return unknownErrorResponseFormat($request);
+        return unknownErrorResponseFormat($request, $methodResponseMode, $this->responseMode);
     }
 
-    protected function _delete(mixed $request, mixed $service, string|null $component = null): JsonResponse|View
+    protected function _delete(mixed $request, mixed $service, string|null $component = null, string|null $methodResponseMode = null): JsonResponse|View
     {
         if ($data = $service->handleDelete($request)) {
-            return httpResponseFormat($request, $data, $component);
+            return httpResponseFormat($request, $data, $component, $methodResponseMode, $this->responseMode);
         };
 
-        return unknownErrorResponseFormat($request);
+        return unknownErrorResponseFormat($request, $methodResponseMode, $this->responseMode);
     }
 
-    protected function _read(mixed $request, mixed $service, null|string|int $id = null, string|null $component = null): JsonResponse|View
+    protected function _read(mixed $request, mixed $service, null|string|int $id = null, string|null $component = null, string|null $methodResponseMode = null): JsonResponse|View
     {
         if ($data = $service->handleRead($id)) {
-            return httpResponseFormat($request, $data, $component);
+            return httpResponseFormat($request, $data, $component, $methodResponseMode, $this->responseMode);
         };
 
-        return unknownErrorResponseFormat($request);
+        return unknownErrorResponseFormat($request, $methodResponseMode, $this->responseMode);
     }
 }

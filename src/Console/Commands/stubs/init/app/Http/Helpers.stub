@@ -9,6 +9,8 @@ use Illuminate\Http\Response as RouteResponse;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
+use Ikechukwukalu\Magicmake\Response\ResponseMode;
+use Ikechukwukalu\Magicmake\Response\ResponsePresenter;
 
 if (!function_exists('responseData')) {
     /**
@@ -70,17 +72,30 @@ if (!function_exists('httpResponseFormat')) {
      * @param string|null $component
      * @return \Illuminate\Contracts\View\View
      */
-    function httpResponseFormat(mixed $request, ResponseData $response, string|null $component = null): JsonResponse|View
+    function httpResponseFormat(
+        mixed $request,
+        ResponseData $response,
+        string|null $component = null,
+        string|null $methodResponseMode = null,
+        string|null $controllerResponseMode = null
+    ): JsonResponse|View
     {
-        if (!$component) {
-            return httpJsonResponse($response);
-        }
+        return (new ResponsePresenter)->present(
+            $methodResponseMode,
+            $controllerResponseMode,
+            config('magicmake.response_mode', ResponseMode::AUTO),
+            shouldResponseBeJson($request),
+            function () use ($response, $component) {
+                if (!$component) {
+                    throw new \LogicException('A view component is required when the resolved response mode is view.');
+                }
 
-        if (shouldResponseBeJson($request)) {
-            return httpJsonResponse($response);
-        }
-
-        return httpViewResponse($response, $component);
+                return httpViewResponse($response, $component);
+            },
+            function () use ($response) {
+                return httpJsonResponse($response);
+            }
+        );
     }
 }
 
@@ -114,16 +129,22 @@ if (!function_exists('unknownErrorResponseFormat')) {
      * @param string|null $component
      * @return \Illuminate\Contracts\View\View
      */
-    function unknownErrorResponseFormat(mixed $request): JsonResponse|View
+    function unknownErrorResponseFormat(
+        mixed $request,
+        string|null $methodResponseMode = null,
+        string|null $controllerResponseMode = null
+    ): JsonResponse|View
     {
         $message = trans('general.unknown_error');
         $response = responseData(false, 400, $message);
 
-        if (shouldResponseBeJson($request)) {
-            return httpJsonResponse($response);
-        }
-
-        return httpViewResponse($response, 'errors/500');
+        return httpResponseFormat(
+            $request,
+            $response,
+            'errors/500',
+            $methodResponseMode,
+            $controllerResponseMode
+        );
     }
 }
 
