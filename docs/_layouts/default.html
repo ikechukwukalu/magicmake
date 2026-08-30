@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ page.title | escape }} | {{ site.title | escape }}</title>
+  <meta name="description" content="{{ site.description | escape }}">
+  <style>
+    :root { color-scheme: light dark; font-family: system-ui, sans-serif; line-height: 1.6; }
+    body { margin: 0; }
+    main { max-width: 60rem; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+    nav { margin-bottom: 2rem; }
+    a { color: #0969da; }
+    code { background: color-mix(in srgb, currentColor 10%, transparent); padding: .1rem .25rem; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #8c959f; padding: .5rem; text-align: left; }
+    pre { overflow-x: auto; padding: 1rem; background: color-mix(in srgb, currentColor 8%, transparent); }
+    @media (prefers-color-scheme: dark) { a { color: #58a6ff; } }
+  </style>
+</head>
+<body>
+  <main>
+    <nav><a href="{{ '/' | relative_url }}">Magic Make development documentation</a></nav>
+    {{ content }}
+  </main>
+</body>
+</html>

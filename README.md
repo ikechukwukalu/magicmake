@@ -12,37 +12,17 @@ A Laravel scaffolding package for an opinionated Laravel coding style.
 
 ## REQUIREMENTS
 
-This release requires:
+The v5.0.0 release candidate has this verified compatibility contract. It remains unpublished until a separately authorized tag and release are created:
 
-- PHP 8.2 or newer.
-- Laravel 12.
+| Laravel | PHP | Support tier |
+| --- | --- | --- |
+| 11 | 8.2–8.4 | Compatibility only; security support ended March 12, 2026 |
+| 12 | 8.2–8.5 | Security fixes only through February 24, 2027 |
+| 13 | 8.3–8.5 | Supported; security fixes through Q1 2028 |
 
-## SOURCE AND RELEASE POLICY
+Every listed Laravel/PHP combination is exercised in the release-candidate CI matrix. Laravel 11 compatibility is retained for established applications, but current Composer policy blocks its known vulnerable releases by default. The legacy jobs consciously bypass resolution blocking only to execute compatibility tests and still report every advisory; Laravel 12–13 jobs retain strict blocking and audit failure. Laravel 12 receives security fixes but its general bug-fix window ended August 13, 2026. PHP 7.3 and Laravel 8–10 were previously declared without matching syntax or CI evidence and are no longer advertised. The `php: ^8.2` dependency floor does not advertise unlisted future PHP releases; support is limited to the combinations in this table until their complete CI jobs pass.
 
-Development, tests, feature branches, and pull requests are maintained in the private `ikechukwukalu/magic-make` development source repository. This public repository is the release destination for reviewed package versions.
-
-Documentation in this repository distinguishes published behavior from approved development work. Generation safety, profiles, modular target paths and namespaces, and explicit response modes remain unreleased until a separately authorized package synchronization and release.
-
-## UNRELEASED DEVELOPMENT CONTRACT
-
-The development source has an approved Phase 2 contract for future package synchronization. These options are **not available in the published v3.0.0 package**.
-
-- `lean`: model, migration, factory, and focused model test.
-- `standard`: the existing opinionated model, migration, contract, repository, service, controller, four requests, API route, factory, and feature-test structure. Standard remains the default.
-- `enterprise`: Standard plus a feature service provider, repository binding, and modular route/migration registration.
-
-The approved command shape is:
-
-```shell
-php artisan magic:model Invoice \
-    --profile=enterprise \
-    --path=app/Domains/Billing \
-    --namespace='App\Domains\Billing'
-```
-
-Target paths are project-relative. When only `--path` is supplied, the namespace is derived from Composer PSR-4 mappings. When only `--namespace` is supplied, the path is derived only if the mapping is unambiguous. Mismatched, unsafe, or unmapped path/namespace combinations fail during preflight. Selected modular artifacts—including routes, providers, factories, migrations, and tests—remain inside the target boundary.
-
-Modular Standard routes require explicit host-application loading. Enterprise generates a provider that binds the repository and loads boundary-local routes and migrations; the host application must explicitly register that provider. The generator does not silently mutate application provider configuration.
+Magic Make installs only the dependencies needed by the scaffolder itself. Generated authentication, notification, activity-log, permissions, browser-detection, and other optional integrations require their corresponding suggested Composer packages. Run `composer suggests ikechukwukalu/magicmake` and install the integrations selected for your application profile.
 
 ## STEPS TO INSTALL
 
@@ -64,6 +44,30 @@ To initialize prepared classes for a new laravel app. This would only run when `
 php artisan magic:init
 ```
 
+Initialization resolves and displays every destination before writing. An unchanged rerun is a no-op, customized files are reported as conflicts, and route includes are appended only once. Use `--dry-run` to inspect the plan. Use `--force` only after reviewing the displayed conflicts; it explicitly replaces conflicting generated files. Optional vendor integrations are not published automatically.
+
+### Response modes
+
+Initialization creates `config/magicmake.php` with the application-wide response mode. Supported modes are `view`, `json`, and `auto`; the default is `auto`.
+
+```dotenv
+MAGIC_RESPONSE_MODE=auto
+```
+
+Response mode resolution is deterministic: a method-level override takes precedence over a controller-level override, which takes precedence over the application-wide default. Request content negotiation is consulted only when the resolved mode is `auto`.
+
+Generated CRUD controllers explicitly use JSON mode to preserve the established API behavior:
+
+```php
+use Ikechukwukalu\Magicmake\Response\ResponseMode;
+
+protected string|null $responseMode = ResponseMode::JSON;
+```
+
+Set the controller property to `ResponseMode::VIEW`, `ResponseMode::AUTO`, or `null` to select a controller-wide mode or inherit the application default. The generated base-controller methods also accept a final method-level response-mode argument. View mode requires a component name; selecting it without one raises an explicit error instead of silently returning JSON.
+
+Application services remain presentation-agnostic and return `ResponseData`. Controllers and response helpers decide whether that data becomes a view or JSON response.
+
 ## MODEL BASED CLASSES
 
 To generate all model based prepared classes.
@@ -71,6 +75,45 @@ To generate all model based prepared classes.
 ``` shell
 php artisan magic:model UserKyc
 ```
+
+Feature names must be single PascalCase PHP identifiers. The command preflights the model, migration, contract, repository, service, controller, requests, factory, test, and API route as one plan. A conflict prevents every write, an unchanged rerun is non-destructive, and a failed write rolls the feature back. `--dry-run` displays the plan and `--force` explicitly overwrites conflicting artifacts.
+
+For an established project, updating the package and running only `magic:model` does not replace files previously created by `magic:init`. Existing helpers, the application base controller, and `ResponseData` remain unchanged, so legacy JSON behavior is preserved. Adopting the newer initialization scaffolding is a separate, explicit migration; see [UPGRADE.md](UPGRADE.md).
+
+### Generation profiles
+
+`--profile=standard` remains the default and preserves the established Magic Make feature structure.
+
+- `lean`: model, migration, factory, and focused model test.
+- `standard`: model, migration, contract, repository, service, controller, create/update/delete/read requests, API route, factory, and feature test.
+- `enterprise`: Standard plus a dedicated service provider with repository binding. For modular targets, the provider also loads the feature route and migrations.
+
+```shell
+php artisan magic:model Invoice --profile=lean
+php artisan magic:model Invoice --profile=standard
+php artisan magic:model Invoice --profile=enterprise
+```
+
+### Modular targets and namespaces
+
+Use a project-relative `--path` to keep every selected artifact inside a feature boundary. Magic Make derives the namespace from the most specific Composer PSR-4 mapping and displays the resolved profile, target, namespace, artifacts, and file actions before writing.
+
+```shell
+php artisan magic:model Invoice \
+    --profile=enterprise \
+    --path=app/Domains/Billing
+```
+
+With the normal `"App\\": "app/"` mapping, the resolved namespace is `App\Domains\Billing`. An explicit namespace may be provided with `--namespace`; it must match the selected path. A namespace without a path derives its path only when the Composer mapping is unambiguous.
+
+```shell
+php artisan magic:model Invoice \
+    --profile=enterprise \
+    --path=app/Domains/Billing \
+    --namespace='App\Domains\Billing'
+```
+
+Modular Standard output includes a boundary-local route file but does not register it automatically. Load it from application routing or choose Enterprise and register the generated `InvoiceServiceProvider` in the host application. Enterprise providers register repository bindings and load their boundary-local route and migration directories. No command mutates `bootstrap/providers.php` or `config/app.php` implicitly.
 
 To generate individual model based prepared classes.
 

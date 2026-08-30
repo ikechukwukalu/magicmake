@@ -7,10 +7,14 @@ use App\Http\Requests\{{ model }}DeleteRequest;
 use App\Http\Requests\{{ model }}ReadRequest;
 use App\Http\Requests\{{ model }}UpdateRequest;
 use App\Services\{{ model }}Service;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
+use Ikechukwukalu\Magicmake\Response\ResponseMode;
 
 class {{ model }}Controller extends Controller
 {
+
+    protected string|null $responseMode = ResponseMode::JSON;
 
     public function __construct(private {{ model }}Service ${{ modelVariable }}Service)
     { }
@@ -35,7 +39,7 @@ class {{ model }}Controller extends Controller
      * @subgroup {{ model }} APIs
      * @group Auth APIs
      */
-    public function create({{ model }}CreateRequest $request): JsonResponse
+    public function create({{ model }}CreateRequest $request): JsonResponse|View
     {
         return $this->_create($request, $this->{{ modelVariable }}Service);
     }
@@ -61,7 +65,7 @@ class {{ model }}Controller extends Controller
      * @subgroup {{ model }} APIs
      * @group Auth APIs
      */
-    public function update({{ model }}UpdateRequest $request): JsonResponse
+    public function update({{ model }}UpdateRequest $request): JsonResponse|View
     {
         return $this->_update($request, $this->{{ modelVariable }}Service);
     }
@@ -86,7 +90,7 @@ class {{ model }}Controller extends Controller
      * @subgroup {{ model }} APIs
      * @group Auth APIs
      */
-    public function delete({{ model }}DeleteRequest $request): JsonResponse
+    public function delete({{ model }}DeleteRequest $request): JsonResponse|View
     {
         return $this->_delete($request, $this->{{ modelVariable }}Service);
     }
@@ -124,7 +128,7 @@ class {{ model }}Controller extends Controller
      * @subgroup {{ model }} APIs
      * @group Auth APIs
      */
-    public function read({{ model }}ReadRequest $request, null|string|int $id = null): JsonResponse
+    public function read({{ model }}ReadRequest $request, null|string|int $id = null): JsonResponse|View
     {
         return $this->_read($request, $this->{{ modelVariable }}Service, $id);
     }

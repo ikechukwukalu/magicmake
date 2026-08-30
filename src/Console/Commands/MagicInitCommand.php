@@ -2,81 +2,55 @@
 
 namespace Ikechukwukalu\Magicmake\Console\Commands;
 
+use Ikechukwukalu\Magicmake\Generation\GenerationConflictException;
+use Throwable;
+
 class MagicInitCommand extends InitCommands
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'magic:init';
+    protected $signature = 'magic:init
+        {--force : Overwrite conflicting generated files}
+        {--dry-run : Display the complete plan without writing files}';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Scaffold the numerous classes';
+    protected $description = 'Safely initialize the opinionated Magic Make application structure';
 
-    /**
-     * Execute the console command.
-     *
-     * @return void
-     */
     public function handle()
     {
-        if (env('APP_ENV', 'production') != 'local') {
-            $this->components->error("This app environment is not local");
-            return;
+        if (! $this->laravel->environment('local')) {
+            $this->components->error('This app environment is not local.');
+
+            return self::FAILURE;
         }
 
-        if (env('MAGIC_INIT_LOCK', true) === true) {
-            $this->components->error("This action is blocked. MAGIC_INIT_LOCK is enabled by default");
-            return;
+        $locked = $this->laravel['config']->get('magicmake.init_lock', env('MAGIC_INIT_LOCK', true));
+        if ($locked) {
+            $this->components->error('This action is blocked. MAGIC_INIT_LOCK is enabled by default.');
+
+            return self::FAILURE;
         }
 
-        $this->handleAppActionPath();
-        $this->handleAppContractsPath();
-        $this->handleAppEnumsPath();
-        $this->handleAppEventsPath();
-        $this->handleAppExceptionsPath();
-        $this->handleAppFacadesPath();
-        $this->handleAppHttpPath();
-        $this->handleAppHttpControllersPath();
-        $this->handleAppHttpControllersAuthPath();
-        $this->handleAppHttpMiddlewarePath();
-        $this->handleAppHttpRequestsPath();
-        $this->handleAppHttpRequestsAuthPath();
-        $this->handleAppListenersPath();
-        $this->handleAppModelsPath();
-        $this->handleAppModelsScopesPath();
-        $this->handleAppNotificationsPath();
-        $this->handleAppProvidersPath();
-        $this->handleAppRepositoriesPath();
-        $this->handleAppRulesPath();
-        $this->handleAppServicesPath();
-        $this->handleAppServicesAuthPath();
-        $this->handleAppTraitsPath();
+        $overwrite = (bool) $this->option('force');
 
-        $this->handleConfigPath();
+        try {
+            $plan = $this->generationPlan();
+            $this->displayPlan($plan, $overwrite);
 
-        $this->handleDatabasePath();
+            if ($this->option('dry-run')) {
+                return $plan->conflicts($overwrite) === [] ? self::SUCCESS : self::FAILURE;
+            }
 
-        $this->handleLangPath();
+            $plan->commit($overwrite);
+        } catch (GenerationConflictException $exception) {
+            $this->components->error($exception->getMessage());
 
-        $this->handleRoutesPath();
+            return self::FAILURE;
+        } catch (Throwable $exception) {
+            $this->components->error('Initialization failed and file changes were rolled back: '.$exception->getMessage());
 
-        $this->handleTestsPath();
+            return self::FAILURE;
+        }
 
-        $this->handleResourcesPath();
+        $this->components->info('Magic Make initialization completed safely. Optional vendor integrations are not published automatically.');
 
-        $this->callSilently("vendor:publish", ["--provider" => "Laragear\TwoFactor\TwoFactorServiceProvider"]);
-        $this->components->info("Laragear TwoFactor migration and config file published");
-
-        $this->callSilently("vendor:publish", ["--provider" => "Spatie\Activitylog\ActivitylogServiceProvider", "--tag" => "activitylog-migrations"]);
-        $this->components->info("Spatie ActivityLog migration and config file published");
-
-        $this->callSilently("vendor:publish", ["--provider" => "Spatie\Permission\PermissionServiceProvider"]);
-        $this->components->info("Spatie Permissions migration and config file published");
+        return self::SUCCESS;
     }
 }

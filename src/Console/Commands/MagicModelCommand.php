@@ -2,168 +2,77 @@
 
 namespace Ikechukwukalu\Magicmake\Console\Commands;
 
-use Illuminate\Console\GeneratorCommand;
-use Illuminate\Support\Str;
+use Ikechukwukalu\Magicmake\Generation\FeaturePlanFactory;
+use Ikechukwukalu\Magicmake\Generation\GenerationConflictException;
+use Ikechukwukalu\Magicmake\Generation\GenerationProfile;
+use Illuminate\Console\Command;
+use InvalidArgumentException;
 use Symfony\Component\Console\Attribute\AsCommand;
-use Symfony\Component\Console\Input\InputOption;
+use Throwable;
 
 #[AsCommand(name: 'magic:model')]
-class MagicModelCommand extends GeneratorCommand
+class MagicModelCommand extends Command
 {
-    /**
-     * The console command name.
-     *
-     * @var string
-     */
-    protected $name = 'magic:model';
+    protected $signature = 'magic:model
+        {name : A single PascalCase model name}
+        {--profile=standard : Generation profile: lean, standard, or enterprise}
+        {--path= : Project-relative feature boundary}
+        {--namespace= : Explicit namespace matching an approved Composer PSR-4 mapping}
+        {--force : Overwrite every conflicting feature artifact}
+        {--dry-run : Display the complete feature plan without writing files}';
 
-    /**
-     * The name of the console command.
-     *
-     * This name is used to identify the command during lazy loading.
-     *
-     * @var string|null
-     *
-     * @deprecated
-     */
-    protected static $defaultName = 'magic:model';
+    protected $description = 'Create a complete Magic Make feature using preflight checks and rollback protection';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Create a new magic model class';
-
-    /**
-     * The type of class being generated.
-     *
-     * @var string
-     */
-    protected $type = 'Model';
-
-    /**
-     * Build the class with the given name.
-     *
-     * @param  string  $name
-     * @return string
-     */
-    protected function buildClass($name)
+    public function handle()
     {
-        if ($this->alreadyExists($name)) {
-            $this->components->error("This model already exists");
-            return;
+        $overwrite = (bool) $this->option('force');
+
+        try {
+            $plan = $this->factory()->make(
+                $this->argument('name'),
+                $this->option('profile') ?: GenerationProfile::STANDARD,
+                $this->option('path'),
+                $this->option('namespace')
+            );
+
+            $this->line('PROFILE '.strtoupper($plan->profile()));
+            $this->line('TARGET '.($plan->target()->path() ?: 'Laravel defaults'));
+            $this->line('NAMESPACE '.($plan->target()->namespaceName() ?: 'Laravel defaults'));
+            $this->line('ARTIFACTS '.implode(', ', $plan->artifacts()));
+
+            foreach ($plan->preview($overwrite) as $item) {
+                $this->line(strtoupper($item['action']).' '.$item['path']);
+            }
+
+            if ($this->option('dry-run')) {
+                return $plan->conflicts($overwrite) === [] ? self::SUCCESS : self::FAILURE;
+            }
+
+            $plan->commit($overwrite);
+        } catch (InvalidArgumentException $exception) {
+            $this->components->error($exception->getMessage());
+
+            return self::INVALID;
+        } catch (GenerationConflictException $exception) {
+            $this->components->error($exception->getMessage());
+
+            return self::FAILURE;
+        } catch (Throwable $exception) {
+            $this->components->error('Feature generation failed and file changes were rolled back: '.$exception->getMessage());
+
+            return self::FAILURE;
         }
 
-        $ary = explode("\\", $name);
-        $model = $ary[count($ary) - 1];
-        $modelVariable = lcfirst($model);
-        $modelUnderScore = Str::snake($modelVariable);
+        $this->components->info('Magic Make feature generated successfully.');
 
-        $this->callSilently("make:migration", ['name' => "create_{$modelUnderScore}s_table"]);
-        $this->components->info("Migration scaffolding for {$model} model generated successfully.");
+        return self::SUCCESS;
+    }
 
-        $this->callSilently("magic:contract", ['name' => "{$model}", '--variable' => $modelVariable, '--underscore' => $modelUnderScore]);
-        $this->components->info("Magic contract scaffolding for {$model} model generated successfully.");
-
-        $this->callSilently("magic:repository", ['name' => "{$model}", '--variable' => $modelVariable, '--underscore' => $modelUnderScore]);
-        $this->components->info("Magic repository scaffolding for {$model} model generated successfully.");
-
-        $this->callSilently("magic:service", ['name' => "{$model}", '--variable' => $modelVariable, '--underscore' => $modelUnderScore]);
-        $this->components->info("Magic service scaffolding for {$model} model generated successfully.");
-
-        $this->callSilently("magic:controller", ['name' => "{$model}", '--variable' => $modelVariable, '--underscore' => $modelUnderScore]);
-        $this->components->info("Magic controller scaffolding for {$model} model generated successfully.");
-
-        $this->callSilently("magic:createRequest", ['name' => "{$model}", '--variable' => $modelVariable, '--underscore' => $modelUnderScore]);
-        $this->components->info("Magic create request scaffolding for {$model} model generated successfully.");
-
-        $this->callSilently("magic:updateRequest", ['name' => "{$model}", '--variable' => $modelVariable, '--underscore' => $modelUnderScore]);
-        $this->components->info("Magic update request scaffolding for {$model} model generated successfully.");
-
-        $this->callSilently("magic:deleteRequest", ['name' => "{$model}", '--variable' => $modelVariable, '--underscore' => $modelUnderScore]);
-        $this->components->info("Magic delete request scaffolding for {$model} model generated successfully.");
-
-        $this->callSilently("magic:readRequest", ['name' => "{$model}", '--variable' => $modelVariable, '--underscore' => $modelUnderScore]);
-        $this->components->info("Magic read request scaffolding for {$model} model generated successfully.");
-
-        $this->callSilently("magic:api", ['name' => "{$model}", '--variable' => $modelVariable, '--underscore' => $modelUnderScore]);
-        $this->components->info("Magic api route scaffolding for {$model} model generated successfully.");
-
-        $this->callSilently("magic:test", ['name' => "{$model}", '--variable' => $modelVariable, '--underscore' => $modelUnderScore]);
-        $this->components->info("Magic test scaffolding for {$model} model generated successfully.");
-
-        $this->callSilently("magic:factory", ['name' => "{$model}", '--variable' => $modelVariable, '--underscore' => $modelUnderScore]);
-        $this->components->info("Magic factory scaffolding for {$model} model generated successfully.");
-
-        $stub = str_replace(
-            ['DummyModel', '{{ model }}'], class_basename($model), parent::buildClass($name)
+    protected function factory()
+    {
+        return new FeaturePlanFactory(
+            $this->laravel->basePath(),
+            __DIR__.'/stubs'
         );
-
-        $stub = str_replace(
-            ['DummyModelVariable', '{{ modelVariable }}'], trim($modelVariable, '\\'), $stub
-        );
-
-        return str_replace(
-            ['DummyModelUnderScore', '{{ modelUnderScore }}'], trim($modelUnderScore, '\\'), $stub
-        );
-    }
-
-    /**
-     * Determine if the class already exists.
-     *
-     * @param  string  $rawName
-     * @return bool
-     */
-    protected function alreadyExists($rawName)
-    {
-        return class_exists($rawName) ||
-               $this->files->exists($this->getPath($this->qualifyClass($rawName)));
-    }
-
-    /**
-     * Get the stub file for the generator.
-     *
-     * @return string
-     */
-    protected function getStub()
-    {
-        return __DIR__.'/stubs/model.stub';
-    }
-
-    /**
-     * Resolve the fully-qualified path to the stub.
-     *
-     * @param  string  $stub
-     * @return string
-     */
-    protected function resolveStubPath($stub)
-    {
-        return file_exists($customPath = $this->laravel->basePath(trim($stub, '/')))
-                        ? $customPath
-                        : __DIR__.$stub;
-    }
-
-    /**
-     * Get the default namespace for the class.
-     *
-     * @param  string  $rootNamespace
-     * @return string
-     */
-    protected function getDefaultNamespace($rootNamespace)
-    {
-        return $rootNamespace.'\Models';
-    }
-
-    /**
-     * Get the console command options.
-     *
-     * @return array
-     */
-    protected function getOptions()
-    {
-        return [
-            ['force', 'f', InputOption::VALUE_NONE, 'Create the class even if the model already exists'],
-        ];
     }
 }

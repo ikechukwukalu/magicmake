@@ -48,11 +48,11 @@ class MagicUpdateRequestCommand extends GeneratorCommand
      * @param  string  $name
      * @return string
      */
-    protected function buildClass($name)
+    protected function buildClass($name): string
     {
         if ($this->alreadyExists(str_replace('.php', '', $this->getPath($name)))) {
             $this->components->error("This UpdateRequest already exists");
-            return;
+            return '';
         }
 
         $model = $name;

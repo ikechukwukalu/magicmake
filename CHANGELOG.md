@@ -1,10 +1,29 @@
-# Unreleased development direction
+# Changelog
 
-- Approved Lean, Standard, and Enterprise generation profiles with explicit artifact sets.
-- Approved Composer PSR-4-aware target paths and namespace resolution with mismatch rejection.
-- Approved modular placement for routes, providers, factories, migrations, and tests.
+## v5.0.0
 
-These items are not part of published v3.0.0 and require a separately authorized source synchronization and release.
+### Compatibility and dependencies
+
+- Require PHP 8.2 or newer, with support limited to the CI-proven Laravel/PHP combinations documented in the compatibility guide.
+- Support Laravel 11 on PHP 8.2–8.4 for compatibility-only use, Laravel 12 on PHP 8.2–8.5, and Laravel 13 on PHP 8.3–8.5.
+- Add Symfony 8 compatibility while retaining Symfony 7.
+- Install only the dependencies required by the scaffolder. Generated-application integrations are now Composer suggestions and must be installed when selected; the unused RequirePin dependency was removed.
+
+### Generation and responses
+
+- Add transactional preflight plans, conflict reporting, explicit `--force`, `--dry-run`, rollback protection, duplicate-route prevention, and non-destructive unchanged reruns for initialization and composite model generation.
+- Stop automatically publishing optional vendor integrations during initialization.
+- Add Lean, Standard, and Enterprise profiles with Composer PSR-4-aware paths, namespaces, and modular artifact placement.
+- Add deterministic `view`, `json`, and `auto` response modes with method, controller, and application precedence while retaining JSON behavior for generated CRUD controllers.
+- Preserve established applications that previously ran `magic:init`: ordinary package updates and `magic:model` do not rewrite their initialized helpers or base controller.
+
+### Quality and documentation
+
+- Add a ten-job Laravel/PHP CI matrix, strict Laravel 12–13 dependency audits, visible compatibility-only Laravel 11 advisory reporting, PHPStan level 5, a 55% statement-coverage floor, clean-profile smoke tests, and a Standard-plan performance budget.
+- Add current-main and manual CI execution, immutable action pins, retained dependency-resolution evidence, upgrade and rollback guidance, and a validated Pages-ready documentation build without enabling publication or deployment.
+- Align lifecycle wording with Laravel's support policy and limit PHP support claims to CI-proven combinations.
+
+See [UPGRADE.md](UPGRADE.md) before updating an established application.
 
 ## v4.0.0
 

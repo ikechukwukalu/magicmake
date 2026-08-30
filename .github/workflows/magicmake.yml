@@ -1,64 +1,167 @@
-name: Magicmake Unit Tests
+name: Magic Make Package
 
 on:
-  push:
+  workflow_dispatch:
   pull_request:
+    paths:
+      - '.github/workflows/magicmake.yml'
+      - 'README.md'
+      - 'CHANGELOG.md'
+      - 'UPGRADE.md'
+      - 'RELEASE_CHECKLIST.md'
+      - 'composer.json'
+      - 'phpunit.xml'
+      - 'phpstan.neon'
+      - 'docs/**'
+      - 'src/**'
+      - 'Tests/**'
+      - 'tools/**'
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/magicmake.yml'
+      - 'README.md'
+      - 'CHANGELOG.md'
+      - 'UPGRADE.md'
+      - 'RELEASE_CHECKLIST.md'
+      - 'composer.json'
+      - 'phpunit.xml'
+      - 'phpstan.neon'
+      - 'docs/**'
+      - 'src/**'
+      - 'Tests/**'
+      - 'tools/**'
+
+permissions:
+  contents: read
 
 jobs:
+  documentation:
+    name: Documentation readiness
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out public package source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-  byte_level:
-    name: "Byte-level"
-    runs-on: "ubuntu-latest"
-    steps:
-      - name: "Checkout code"
-        uses: "actions/checkout@v4"
-      - name: "Check file permissions"
-        run: |
-          test "$(find . -type f -not -path './.git/*' -executable)" == ""
-      - name: "Find non-printable ASCII characters"
-        run: |
-          ! LC_ALL=C.UTF-8 find ./src -type f -name "*.php" -print0 | xargs -0 -- grep -PHn "[^ -~]"
-  syntax_errors:
-    name: "Syntax errors"
-    runs-on: "ubuntu-latest"
-    steps:
-      - name: "Set up PHP"
-        uses: "shivammathur/setup-php@v2"
+      - name: Set up PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
         with:
-          php-version: "8.2"
-          tools: "parallel-lint"
-      - name: "Checkout code"
-        uses: "actions/checkout@v4"
-      # - name: "Validate Composer configuration"
-      #   run: "composer validate --strict"
-      - name: "Check source code for syntax errors"
-        run: "composer exec -- parallel-lint src/"
-  unit_tests:
-    name: "Unit Tests"
-    needs:
-      - "byte_level"
-      - "syntax_errors"
-    runs-on: "ubuntu-latest"
+          php-version: '8.4'
+          coverage: none
+
+      - name: Build GitHub Pages site
+        uses: actions/jekyll-build-pages@44a6e6beabd48582f863aeeb6cb2151cc1716697 # v1.0.13
+        with:
+          source: ./docs
+          destination: ./build/pages
+
+      - name: Verify documentation source and built-site links
+        run: php tools/verify-documentation.php build/pages
+
+  compatibility:
+    name: Laravel ${{ matrix.laravel }} / PHP ${{ matrix.php }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
-        php: ["8.2", "8.3", "8.4"]
+        include:
+          - laravel: '11'
+            testbench: '^9.0'
+            php: '8.2'
+            legacy: true
+          - laravel: '11'
+            testbench: '^9.0'
+            php: '8.3'
+            legacy: true
+          - laravel: '11'
+            testbench: '^9.0'
+            php: '8.4'
+            legacy: true
+          - laravel: '12'
+            testbench: '^10.0'
+            php: '8.2'
+          - laravel: '12'
+            testbench: '^10.0'
+            php: '8.3'
+          - laravel: '12'
+            testbench: '^10.0'
+            php: '8.4'
+          - laravel: '12'
+            testbench: '^10.0'
+            php: '8.5'
+          - laravel: '13'
+            testbench: '^11.0'
+            php: '8.3'
+          - laravel: '13'
+            testbench: '^11.0'
+            php: '8.4'
+          - laravel: '13'
+            testbench: '^11.0'
+            php: '8.5'
+            quality: true
     steps:
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+      - name: Check out public package source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
         with:
           php-version: ${{ matrix.php }}
-          extension-csv: mbstring, bcmath
-      - name: "Checkout code"
-        uses: "actions/checkout@v4"
-      - name: Composer install
-        run: composer install
-      - name: "Execute unit tests"
-        run: "composer run-script test"
-      # - name: Run Snyk to check for vulnerabilities
-      #   uses: snyk/actions/php@master
-      #   env:
-      #     SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-      #   with:
-      #     # args: --all-projects
-      #     command: test
+          coverage: ${{ matrix.quality && 'pcov' || 'none' }}
+          tools: composer:v2
+
+      - name: Validate package metadata
+        run: composer validate --no-check-publish
+
+      - name: Resolve supported dependencies
+        if: matrix.legacy != true
+        run: >-
+          composer update
+          --with orchestra/testbench:${{ matrix.testbench }}
+          --with illuminate/console:^${{ matrix.laravel }}.0
+          --with illuminate/support:^${{ matrix.laravel }}.0
+          --prefer-dist --no-interaction --no-progress
+
+      - name: Resolve legacy compatibility dependencies
+        if: matrix.legacy == true
+        run: >-
+          composer update --no-blocking
+          --with orchestra/testbench:${{ matrix.testbench }}
+          --with illuminate/console:^${{ matrix.laravel }}.0
+          --with illuminate/support:^${{ matrix.laravel }}.0
+          --prefer-dist --no-interaction --no-progress
+
+      - name: Audit supported dependencies
+        if: matrix.legacy != true
+        run: composer audit --locked --no-interaction
+
+      - name: Report legacy dependency advisories
+        if: matrix.legacy == true
+        continue-on-error: true
+        run: composer audit --locked --no-interaction
+
+      - name: Lint package PHP
+        run: composer exec -- parallel-lint src Tests
+
+      - name: Run package tests
+        run: composer test
+
+      - name: Run static analysis
+        if: matrix.quality == true
+        run: composer analyse
+
+      - name: Enforce coverage baseline
+        if: matrix.quality == true
+        run: composer test-coverage
+
+      - name: Preserve resolved dependency evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: composer-lock-laravel-${{ matrix.laravel }}-php-${{ matrix.php }}
+          path: composer.lock
+          if-no-files-found: error
+          retention-days: 14

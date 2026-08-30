@@ -1,0 +1,9 @@
+<?php
+
+return [
+    /*
+    | Method override > controller override > this default.
+    | Request negotiation is consulted only when the active mode is "auto".
+    */
+    'response_mode' => env('MAGIC_RESPONSE_MODE', 'auto'),
+];

@@ -1,0 +1,14 @@
+<?php
+
+namespace Tests\Unit;
+
+use App\Models\{{ model }};
+use PHPUnit\Framework\TestCase;
+
+class {{ model }}Test extends TestCase
+{
+    public function test_model_exposes_the_generated_fillable_contract(): void
+    {
+        $this->assertSame(['name', 'active'], (new {{ model }})->getFillable());
+    }
+}
