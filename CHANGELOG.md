@@ -2,8 +2,6 @@
 
 ## v5.1.0
 
-This version is a public release candidate. It has not been merged into `main`, tagged, published, or released.
-
 - Add the Repository profile, which generates a model, migration, factory, model test, repository contract, repository implementation, and presentation-independent service.
 - Generate the Repository service with array and scalar-ID inputs and typed `ResponseData` results, without controller, request, route, or feature-test dependencies.
 - Make Standard and Repository generation safely create or update the shared `App\Providers\RepositoryServiceProvider` and register it exactly once in `bootstrap/providers.php`.

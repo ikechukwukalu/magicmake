@@ -2,8 +2,6 @@
 
 ## v5.0.0 to v5.1.0
 
-v5.1.0 is currently a public release candidate; it has not yet been merged into `main`, tagged, published, or released.
-
 The upgrade is additive. Standard remains the default, and Lean and Enterprise retain their existing artifact contracts. Existing generated application files are not rewritten merely by updating the package.
 
 The new Repository profile generates exactly seven feature artifacts: model, migration, factory, model test, repository contract, repository implementation, and a presentation-independent service. The service accepts arrays and scalar IDs and returns typed `ResponseData` without depending on HTTP requests.
@@ -33,9 +31,9 @@ Before updating, confirm that the application uses a supported combination:
 | 12 | 8.2–8.5 | Security fixes only through February 24, 2027 |
 | 13 | 8.3–8.5 | Supported; security fixes through Q1 2028 |
 
-Laravel 8–10 and PHP versions below 8.2 are not part of the v5.1.0 release-candidate contract. Do not update such an application until its framework and PHP runtime have been upgraded and tested.
+Laravel 8–10 and PHP versions below 8.2 are not supported by v5.1.0. Do not update such an application until its framework and PHP runtime have been upgraded and tested.
 
-Current Composer policy blocks all available Laravel 11 releases because of active security advisories. Magic Make tests Laravel 11 only to detect regressions for established projects; this is not a security-support promise. Do not disable Composer policy for a production update. Upgrade the application to Laravel 12 or 13 before adopting the v5.1.0 release candidate.
+Current Composer policy blocks all available Laravel 11 releases because of active security advisories. Magic Make tests Laravel 11 only to detect regressions for established projects; this is not a security-support promise. Do not disable Composer policy for a production update. Upgrade the application to Laravel 12 or 13 before adopting v5.1.0.
 
 Laravel 12's general bug-fix window ended August 13, 2026, but upstream security fixes continue through February 24, 2027. Plan migration to Laravel 13 rather than treating Laravel 12 compatibility as an indefinite lifecycle promise.
 

@@ -12,7 +12,7 @@ A Laravel scaffolding package for an opinionated Laravel coding style.
 
 ## REQUIREMENTS
 
-The v5.1.0 release candidate has this verified compatibility contract:
+Magic Make supports only the following CI-proven Laravel/PHP combinations:
 
 | Laravel | PHP | Support tier |
 | --- | --- | --- |
@@ -82,7 +82,7 @@ For an established project, updating the package and running only `magic:model` 
 
 ### Generation profiles
 
-v5.1.0 adds the Repository profile and shared repository autobinding. This candidate has not yet been merged into `main`, tagged, published, or released.
+v5.1.0 adds the Repository profile and shared repository autobinding.
 
 `--profile=standard` remains the default and preserves the established Magic Make feature structure.
 

@@ -1,9 +1,9 @@
 ---
 layout: default
-title: Release-candidate verification
+title: Release verification
 ---
 
-# Release-candidate verification
+# Release verification
 
 The public workflow runs ten Laravel/PHP jobs on pull requests, pushes to `main`, and manual dispatches. Every job validates package metadata, resolves the selected Laravel and Testbench versions, lints PHP, and runs PHPUnit.
 

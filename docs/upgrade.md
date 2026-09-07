@@ -9,7 +9,7 @@ title: Upgrade guide
 
 Updating Magic Make does not rewrite application files previously created by `magic:init`. An established application may continue using only `magic:model`; its existing helpers, base controller, `ResponseData`, services, and response behavior remain unchanged.
 
-Before updating, confirm that the application uses a combination in the [compatibility policy]({{ '/compatibility.html' | relative_url }}). Laravel 8–10 and PHP versions below 8.2 are outside the v5.1.0 candidate contract. Laravel 11 is retained for compatibility evidence but has active advisories and is not security-supported; do not disable Composer security policy for a production update.
+Before updating, confirm that the application uses a combination in the [compatibility policy]({{ '/compatibility.html' | relative_url }}). Laravel 8–10 and PHP versions below 8.2 are not supported by v5.1.0. Laravel 11 is retained for compatibility evidence but has active advisories and is not security-supported; do not disable Composer security policy for a production update.
 
 v5.1.0 adds the Repository profile and makes Standard and Repository generation maintain a shared `App\Providers\RepositoryServiceProvider`. Before the first post-upgrade generation, commit application-owned files and confirm that `bootstrap/providers.php` is parseable and directly returns its provider array. Compatible existing bindings are preserved; conflicting or ambiguous bindings stop generation and cannot be overridden with `--force`.
 
