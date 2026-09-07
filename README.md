@@ -12,7 +12,7 @@ A Laravel scaffolding package for an opinionated Laravel coding style.
 
 ## REQUIREMENTS
 
-The v5.0.0 release candidate has this verified compatibility contract. It remains unpublished until a separately authorized tag and release are created:
+Magic Make supports only the following CI-proven Laravel/PHP combinations:
 
 | Laravel | PHP | Support tier |
 | --- | --- | --- |
@@ -20,7 +20,7 @@ The v5.0.0 release candidate has this verified compatibility contract. It remain
 | 12 | 8.2–8.5 | Security fixes only through February 24, 2027 |
 | 13 | 8.3–8.5 | Supported; security fixes through Q1 2028 |
 
-Every listed Laravel/PHP combination is exercised in the release-candidate CI matrix. Laravel 11 compatibility is retained for established applications, but current Composer policy blocks its known vulnerable releases by default. The legacy jobs consciously bypass resolution blocking only to execute compatibility tests and still report every advisory; Laravel 12–13 jobs retain strict blocking and audit failure. Laravel 12 receives security fixes but its general bug-fix window ended August 13, 2026. PHP 7.3 and Laravel 8–10 were previously declared without matching syntax or CI evidence and are no longer advertised. The `php: ^8.2` dependency floor does not advertise unlisted future PHP releases; support is limited to the combinations in this table until their complete CI jobs pass.
+Every listed Laravel/PHP combination is exercised in development CI. Laravel 11 compatibility is retained for established applications, but current Composer policy blocks its known vulnerable releases by default. The legacy jobs consciously bypass resolution blocking only to execute compatibility tests and still report every advisory; Laravel 12–13 jobs retain strict blocking and audit failure. Laravel 12 receives security fixes but its general bug-fix window ended August 13, 2026. PHP 7.3 and Laravel 8–10 were previously declared without matching syntax or CI evidence and are no longer advertised. The `php: ^8.2` dependency floor does not advertise unlisted future PHP releases; support is limited to the combinations in this table until their complete CI jobs pass.
 
 Magic Make installs only the dependencies needed by the scaffolder itself. Generated authentication, notification, activity-log, permissions, browser-detection, and other optional integrations require their corresponding suggested Composer packages. Run `composer suggests ikechukwukalu/magicmake` and install the integrations selected for your application profile.
 
@@ -82,14 +82,20 @@ For an established project, updating the package and running only `magic:model` 
 
 ### Generation profiles
 
+v5.1.0 adds the Repository profile and shared repository autobinding.
+
 `--profile=standard` remains the default and preserves the established Magic Make feature structure.
 
 - `lean`: model, migration, factory, and focused model test.
+- `repository`: Lean plus a repository contract, repository implementation, and an array/ID-based service returning `ResponseData` without HTTP request dependencies.
 - `standard`: model, migration, contract, repository, service, controller, create/update/delete/read requests, API route, factory, and feature test.
 - `enterprise`: Standard plus a dedicated service provider with repository binding. For modular targets, the provider also loads the feature route and migrations.
 
+Standard and Repository safely maintain one application-level `App\Providers\RepositoryServiceProvider`. Magic Make creates it when absent, adds each contract-to-repository binding with fully qualified class names, and registers it exactly once in `bootstrap/providers.php`. Existing unrelated provider content and registrations are preserved. An exact existing `$this->app` or zero-argument `app()` binding is retained whether it uses `bind`, `singleton`, or `scoped` lifecycle semantics (including their `*If` variants), or `instance` with a directly constructed repository; the application-selected lifecycle remains authoritative. Missing or structurally unsafe provider registration, a conflicting or ambiguous implementation for the same contract, or an ambiguous provider structure stops the complete plan before any write; `--force` cannot bypass those semantic conflicts. Calls on unrelated receivers do not satisfy an application-container binding.
+
 ```shell
 php artisan magic:model Invoice --profile=lean
+php artisan magic:model Invoice --profile=repository
 php artisan magic:model Invoice --profile=standard
 php artisan magic:model Invoice --profile=enterprise
 ```
@@ -113,7 +119,7 @@ php artisan magic:model Invoice \
     --namespace='App\Domains\Billing'
 ```
 
-Modular Standard output includes a boundary-local route file but does not register it automatically. Load it from application routing or choose Enterprise and register the generated `InvoiceServiceProvider` in the host application. Enterprise providers register repository bindings and load their boundary-local route and migration directories. No command mutates `bootstrap/providers.php` or `config/app.php` implicitly.
+Modular Standard output includes a boundary-local route file but does not register that route automatically. Its repository binding is added to the shared application provider. Repository-profile output has no route. Enterprise providers retain their boundary-specific bindings and load their boundary-local route and migration directories; Enterprise does not change the shared provider or `bootstrap/providers.php`.
 
 To generate individual model based prepared classes.
 
@@ -154,7 +160,7 @@ Add this to `config/api.php`.
     ],
 ```
 
-Add this to `app/Providers/RepositoryServiceProvider.php`.
+When using the individual `magic:contract` and `magic:repository` commands instead of a Standard or Repository profile, add the binding to `app/Providers/RepositoryServiceProvider.php` manually.
 
 ```php
 use App\Contracts\UserKycRepositoryInterface;

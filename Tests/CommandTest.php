@@ -16,8 +16,10 @@ class CommandTest extends TestCase
 
         $this->projectPath = sys_get_temp_dir().'/magicmake-command-'.uniqid('', true);
         mkdir($this->projectPath.'/routes', 0755, true);
+        mkdir($this->projectPath.'/bootstrap', 0755, true);
         file_put_contents($this->projectPath.'/routes/api.php', "<?php\n");
         file_put_contents($this->projectPath.'/routes/web.php', "<?php\n");
+        file_put_contents($this->projectPath.'/bootstrap/providers.php', "<?php\n\nreturn [\n    App\\Providers\\AppServiceProvider::class,\n];\n");
         file_put_contents($this->projectPath.'/composer.json', json_encode([
             'autoload' => ['psr-4' => ['App\\' => 'app/']],
             'autoload-dev' => ['psr-4' => ['Tests\\' => 'tests/']],
@@ -149,6 +151,29 @@ PHP;
     {
         $this->artisan('magic:model Invoice --profile=custom')->assertFailed();
         $this->assertFileDoesNotExist($this->projectPath.'/app/Models/Invoice.php');
+    }
+
+    public function test_model_help_lists_repository_profile(): void
+    {
+        $this->artisan('help magic:model')
+            ->expectsOutputToContain('lean, repository, standard, or enterprise')
+            ->assertSuccessful();
+    }
+
+    public function test_repository_profile_generates_array_based_service_and_registers_binding(): void
+    {
+        $this->artisan('magic:model Invoice --profile=repository')->assertSuccessful();
+
+        $service = file_get_contents($this->projectPath.'/app/Services/InvoiceService.php');
+        $provider = file_get_contents($this->projectPath.'/app/Providers/RepositoryServiceProvider.php');
+        $bootstrap = file_get_contents($this->projectPath.'/bootstrap/providers.php');
+
+        $this->assertStringContainsString('handleCreate(array $data): ResponseData', $service);
+        $this->assertStringContainsString('handleUpdate(array $data): ResponseData', $service);
+        $this->assertStringContainsString('handleDelete(int|string $id): ResponseData', $service);
+        $this->assertStringNotContainsString('Http\\Requests', $service);
+        $this->assertStringContainsString('\\App\\Contracts\\InvoiceRepositoryInterface::class, \\App\\Repositories\\InvoiceRepository::class', $provider);
+        $this->assertSame(1, substr_count($bootstrap, 'App\\Providers\\RepositoryServiceProvider::class'));
     }
 
     private function removeDirectory($directory)

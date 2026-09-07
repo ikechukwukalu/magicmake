@@ -7,6 +7,7 @@ use InvalidArgumentException;
 class GenerationProfile
 {
     const LEAN = 'lean';
+    const REPOSITORY = 'repository';
     const STANDARD = 'standard';
     const ENTERPRISE = 'enterprise';
 
@@ -15,7 +16,7 @@ class GenerationProfile
         $profile = strtolower(trim((string) $profile));
 
         if (! in_array($profile, self::all(), true)) {
-            throw new InvalidArgumentException('Generation profile must be one of: lean, standard, enterprise.');
+            throw new InvalidArgumentException('Generation profile must be one of: lean, repository, standard, enterprise.');
         }
 
         return $profile;
@@ -23,7 +24,7 @@ class GenerationProfile
 
     public static function all()
     {
-        return [self::LEAN, self::STANDARD, self::ENTERPRISE];
+        return [self::LEAN, self::REPOSITORY, self::STANDARD, self::ENTERPRISE];
     }
 
     public static function artifacts($profile)
@@ -32,6 +33,10 @@ class GenerationProfile
 
         if ($profile === self::LEAN) {
             return ['model', 'migration', 'factory', 'modelTest'];
+        }
+
+        if ($profile === self::REPOSITORY) {
+            return ['model', 'migration', 'factory', 'modelTest', 'contract', 'repository', 'service'];
         }
 
         $artifacts = [

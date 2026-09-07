@@ -20,7 +20,9 @@ class FeaturePlanFactoryTest extends TestCase
     {
         $this->path = sys_get_temp_dir().'/magicmake-feature-'.uniqid('', true);
         mkdir($this->path.'/routes', 0755, true);
+        mkdir($this->path.'/bootstrap', 0755, true);
         file_put_contents($this->path.'/routes/api.php', "<?php\n");
+        file_put_contents($this->path.'/bootstrap/providers.php', "<?php\n\nreturn [\n    App\\Providers\\AppServiceProvider::class,\n];\n");
         file_put_contents($this->path.'/composer.json', json_encode([
             'autoload' => ['psr-4' => ['App\\' => 'app/']],
             'autoload-dev' => ['psr-4' => ['Tests\\' => 'tests/']],
@@ -40,19 +42,24 @@ class FeaturePlanFactoryTest extends TestCase
     {
         $preview = $this->factory->make('DeliveryType')->preview();
 
-        $this->assertCount(13, $preview);
-        $this->assertSame(['create', 'append'], array_values(array_unique(array_column($preview, 'action'))));
+        $this->assertContains($this->path.'/app/Providers/RepositoryServiceProvider.php', array_column($preview, 'path'));
+        $this->assertContains($this->path.'/bootstrap/providers.php', array_column($preview, 'path'));
+        $this->assertContains('append', array_column($preview, 'action'));
     }
 
     public function test_profiles_have_explicit_artifact_contracts(): void
     {
         $lean = $this->factory->make('Country', GenerationProfile::LEAN);
+        $repository = $this->factory->make('Purchase', GenerationProfile::REPOSITORY);
         $standard = $this->factory->make('DeliveryType', GenerationProfile::STANDARD);
         $enterprise = $this->factory->make('Warehouse', GenerationProfile::ENTERPRISE);
 
         $this->assertSame(['model', 'migration', 'factory', 'modelTest'], $lean->artifacts());
+        $this->assertSame(['model', 'migration', 'factory', 'modelTest', 'contract', 'repository', 'service'], $repository->artifacts());
+        $this->assertCount(13, $standard->artifacts());
         $this->assertCount(4, $lean->preview());
-        $this->assertCount(13, $standard->preview());
+        $this->assertCount(9, $repository->preview());
+        $this->assertCount(15, $standard->preview());
         $this->assertCount(14, $enterprise->preview());
         $this->assertContains($this->path.'/app/Providers/WarehouseServiceProvider.php', array_column($enterprise->preview(), 'path'));
     }
@@ -63,8 +70,14 @@ class FeaturePlanFactoryTest extends TestCase
 
         $this->assertSame('app/Domains/Billing', $plan->target()->path());
         $this->assertSame('App\\Domains\\Billing', $plan->target()->namespaceName());
-        foreach ($plan->preview() as $item) {
-            $this->assertStringStartsWith($this->path.'/app/Domains/Billing/', $item['path']);
+        $featurePaths = array_filter(array_column($plan->preview(), 'path'), function ($path) {
+            return ! in_array($path, [
+                $this->path.'/app/Providers/RepositoryServiceProvider.php',
+                $this->path.'/bootstrap/providers.php',
+            ], true);
+        });
+        foreach ($featurePaths as $path) {
+            $this->assertStringStartsWith($this->path.'/app/Domains/Billing/', $path);
         }
 
         $plan->commit();

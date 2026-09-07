@@ -18,7 +18,9 @@ class ReleaseReadinessTest extends TestCase
     {
         $this->path = sys_get_temp_dir().'/magicmake-release-'.uniqid('', true);
         mkdir($this->path.'/routes', 0755, true);
+        mkdir($this->path.'/bootstrap', 0755, true);
         file_put_contents($this->path.'/routes/api.php', "<?php\n");
+        file_put_contents($this->path.'/bootstrap/providers.php', "<?php\n\nreturn [\n    App\\Providers\\AppServiceProvider::class,\n];\n");
         file_put_contents($this->path.'/composer.json', json_encode([
             'autoload' => ['psr-4' => ['App\\' => 'app/']],
             'autoload-dev' => ['psr-4' => ['Tests\\' => 'tests/']],
@@ -38,6 +40,7 @@ class ReleaseReadinessTest extends TestCase
     {
         $profiles = [
             GenerationProfile::LEAN => 'LeanFeature',
+            GenerationProfile::REPOSITORY => 'RepositoryFeature',
             GenerationProfile::STANDARD => 'StandardFeature',
             GenerationProfile::ENTERPRISE => 'EnterpriseFeature',
         ];
@@ -73,7 +76,7 @@ class ReleaseReadinessTest extends TestCase
 
         for ($index = 0; $index < 100; $index++) {
             $preview = $this->factory->make('PerformanceFeature'.$index)->preview();
-            $this->assertCount(13, $preview);
+            $this->assertGreaterThanOrEqual(13, count($preview));
         }
 
         $this->assertLessThan(

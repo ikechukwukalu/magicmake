@@ -10,7 +10,7 @@ class GenerationPlan
     /** @var string */
     private $basePath;
 
-    /** @var array<string, array{path: string, content: string, mode: string}> */
+    /** @var array<string, array{path: string, content: string, mode: string, original?: string}> */
     private $operations = [];
 
     public function __construct($basePath)
@@ -26,6 +26,32 @@ class GenerationPlan
     public function addUniqueAppend($path, $content)
     {
         return $this->addOperation($path, trim($content).PHP_EOL, 'append');
+    }
+
+    /**
+     * Add a semantics-aware edit whose source bytes must remain unchanged between
+     * planning and writing. The operation is never made safe by --force.
+     */
+    public function addManagedFile($path, $original, $content)
+    {
+        return $this->addOperation($path, $content, 'managed', (string) $original);
+    }
+
+    /**
+     * Add a creation whose destination must remain absent through the write.
+     * Concurrent appearance is never overridden by --force.
+     */
+    public function addManagedCreate($path, $content)
+    {
+        return $this->addOperation($path, $content, 'managed-create');
+    }
+
+    /**
+     * Add a non-overridable preflight conflict for an unsafe managed file.
+     */
+    public function addConflict($path)
+    {
+        return $this->addOperation($path, '', 'blocked');
     }
 
     /**
@@ -88,14 +114,28 @@ class GenerationPlan
 
                 $operation = array_values($this->operations)[$index];
                 $path = $operation['path'];
-                $backups[$path] = is_file($path) ? file_get_contents($path) : null;
                 $this->ensureDirectory(dirname($path), $createdDirectories);
 
                 if ($beforeWrite !== null) {
                     $beforeWrite($path, $writeIndex);
                 }
 
+                if ($operation['mode'] === 'managed') {
+                    $current = is_file($path) ? file_get_contents($path) : false;
+                    if ($current === false || $current !== $operation['original']) {
+                        throw new RuntimeException("Managed generation source [{$path}] changed after preflight.");
+                    }
+                }
+
                 $content = $operation['content'];
+                if ($operation['mode'] === 'managed-create') {
+                    $this->writeExclusive($path, $content, $backups);
+                    $writeIndex++;
+                    continue;
+                }
+
+                $backups[$path] = is_file($path) ? file_get_contents($path) : null;
+
                 if ($operation['mode'] === 'append' && is_file($path)) {
                     $existing = (string) file_get_contents($path);
                     $content = rtrim($existing).PHP_EOL.PHP_EOL.$content;
@@ -115,7 +155,33 @@ class GenerationPlan
         return $preview;
     }
 
-    private function addOperation($path, $content, $mode)
+    private function writeExclusive($path, $content, array &$backups)
+    {
+        $handle = @fopen($path, 'x');
+        if ($handle === false) {
+            throw new RuntimeException("Managed generation destination [{$path}] appeared after preflight.");
+        }
+
+        $backups[$path] = null;
+        try {
+            $length = strlen($content);
+            $written = 0;
+            while ($written < $length) {
+                $result = fwrite($handle, substr($content, $written));
+                if ($result === false || $result === 0) {
+                    throw new RuntimeException("Unable to write [{$path}].");
+                }
+                $written += $result;
+            }
+            if (! fflush($handle)) {
+                throw new RuntimeException("Unable to write [{$path}].");
+            }
+        } finally {
+            fclose($handle);
+        }
+    }
+
+    private function addOperation($path, $content, $mode, $original = null)
     {
         $path = $this->normalizePath($path);
         $this->assertSafePath($path);
@@ -125,6 +191,9 @@ class GenerationPlan
         }
 
         $this->operations[$path] = compact('path', 'content', 'mode');
+        if ($mode === 'managed') {
+            $this->operations[$path]['original'] = $original;
+        }
 
         return $this;
     }
@@ -133,8 +202,16 @@ class GenerationPlan
     {
         $path = $operation['path'];
 
+        if ($operation['mode'] === 'blocked') {
+            return 'conflict';
+        }
+
         if (is_dir($path) || ! $this->destinationIsWritable($path)) {
             return 'conflict';
+        }
+
+        if ($operation['mode'] === 'managed-create') {
+            return file_exists($path) ? 'conflict' : 'create';
         }
 
         if (! file_exists($path)) {
@@ -142,6 +219,14 @@ class GenerationPlan
         }
 
         $existing = (string) file_get_contents($path);
+
+        if ($operation['mode'] === 'managed') {
+            if ($existing !== $operation['original']) {
+                return 'conflict';
+            }
+
+            return $existing === $operation['content'] ? 'skip' : 'update';
+        }
 
         if ($operation['mode'] === 'append') {
             return strpos($existing, trim($operation['content'])) !== false ? 'skip' : 'append';
