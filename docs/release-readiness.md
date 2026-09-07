@@ -9,7 +9,7 @@ The public workflow runs ten Laravel/PHP jobs on pull requests, pushes to `main`
 
 Laravel 12 and Laravel 13 jobs strictly audit the resolved lockfile. Laravel 11 jobs preserve compatibility visibility while reporting their known advisories. The Laravel 13 / PHP 8.5 edge also runs PHPStan level 5 and enforces the 55% statement-coverage floor. Matrix lockfiles are uploaded for 14 days as dependency-resolution evidence.
 
-The regression suite exercises clean Lean, Standard, and Enterprise generation, legacy initialized-application behavior, the public-v4 dependency transition, generated PHP syntax, and a budget requiring 100 Standard generation plans to complete within two seconds.
+The regression suite exercises clean Lean, Repository, Standard, and Enterprise generation, legacy initialized-application behavior, the public-v4 dependency transition, generated PHP syntax, and a budget requiring 100 Standard generation plans to complete within two seconds. Shared-provider coverage includes creation, update, registration, idempotency, conflict detection, same-basename modules, runtime resolution, source revalidation, and byte-for-byte rollback.
 
 CI also performs a real Jekyll build and checks required documentation sources and rendered-site links. The workflow does not enable GitHub Pages or deploy the built site.
 

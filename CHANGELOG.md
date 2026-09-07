@@ -1,5 +1,18 @@
 # Changelog
 
+## v5.1.0
+
+This version is a public release candidate. It has not been merged into `main`, tagged, published, or released.
+
+- Add the Repository profile, which generates a model, migration, factory, model test, repository contract, repository implementation, and presentation-independent service.
+- Generate the Repository service with array and scalar-ID inputs and typed `ResponseData` results, without controller, request, route, or feature-test dependencies.
+- Make Standard and Repository generation safely create or update the shared `App\Providers\RepositoryServiceProvider` and register it exactly once in `bootstrap/providers.php`.
+- Preserve existing compatible container lifecycles and unrelated provider content while blocking conflicting or ambiguous bindings, including when `--force` is used.
+- Include provider and bootstrap changes in preflight, dry-run, source revalidation, atomic creation, rollback, idempotency, modular namespace, and same-basename domain protections.
+- Preserve Standard as the default profile, Lean output, Enterprise feature-specific providers, existing public APIs, and established-project behavior.
+
+See [UPGRADE.md](UPGRADE.md) before updating an established v5.0 application.
+
 ## v5.0.0
 
 ### Compatibility and dependencies

@@ -16,8 +16,11 @@ Use `--dry-run` to inspect the plan. Use `--force` only after reviewing every re
 `php artisan magic:model Invoice` uses the Standard profile by default. Every selected artifact is planned before the first write; a conflict prevents the complete plan, and newly written artifacts are rolled back after a write failure.
 
 - `lean`: model, migration, factory, and focused model test.
+- `repository`: Lean plus a repository contract, repository implementation, and an array/ID-based service returning typed `ResponseData`.
 - `standard`: model, migration, contract, repository, service, controller, four requests, API route, factory, and feature test.
-- `enterprise`: Standard plus a service provider with repository binding and modular resource loading.
+- `enterprise`: Standard plus a feature-specific service provider with repository binding and modular resource loading.
+
+Standard and Repository safely maintain one shared `App\Providers\RepositoryServiceProvider` and register it once in `bootstrap/providers.php`. Existing compatible binding lifecycles and unrelated provider code are preserved. Conflicting or ambiguous bindings stop the complete plan even with `--force`. Repository-profile output has no controller, requests, route, or feature test; Enterprise retains its isolated provider behavior.
 
 Use `--path` and `--namespace` for Composer PSR-4-aware modular output. Unsafe, mismatched, ambiguous, or unmapped targets fail during preflight.
 

@@ -36,6 +36,10 @@ class FeaturePlanFactory
             $this->addArtifact($plan, $artifact, $context, $target, $profile);
         }
 
+        if (in_array($profile, [GenerationProfile::STANDARD, GenerationProfile::REPOSITORY], true)) {
+            $this->addSharedRepositoryBinding($plan, $context);
+        }
+
         return $plan;
     }
 
@@ -82,7 +86,10 @@ class FeaturePlanFactory
         }
 
         $definition = $definitions[$artifact];
-        $content = $this->render($definition['stub'], $context);
+        $stub = $artifact === 'service' && $profile === GenerationProfile::REPOSITORY
+            ? 'repositoryService.stub'
+            : $definition['stub'];
+        $content = $this->render($stub, $context);
         $content = $this->localizeNamespaces($content, $context);
         $content = $this->addModularBaseImports($content, $artifact, $context);
         if ($artifact === 'model' && $target->isModular()) {
@@ -212,6 +219,47 @@ class FeaturePlanFactory
         }
 
         return "<?php\n\nnamespace {$context['providerNamespace']};\n\nuse {$context['contractNamespace']}\\{$context['model']}RepositoryInterface;\nuse {$context['repositoryNamespace']}\\{$context['model']}Repository;\nuse Illuminate\\Support\\ServiceProvider;\n\nclass {$context['model']}ServiceProvider extends ServiceProvider\n{\n    public function register(): void\n    {\n        \$this->app->bind({$context['model']}RepositoryInterface::class, {$context['model']}Repository::class);\n    }\n{$boot}}\n";
+    }
+
+    private function addSharedRepositoryBinding(FeatureGenerationPlan $plan, array $context)
+    {
+        $providerPath = $this->basePath.'/app/Providers/RepositoryServiceProvider.php';
+        $contract = $context['contractNamespace'].'\\'.$context['model'].'RepositoryInterface';
+        $repository = $context['repositoryNamespace'].'\\'.$context['model'].'Repository';
+        $providerEditor = new RepositoryProviderEditor();
+
+        if (is_file($providerPath)) {
+            $original = file_get_contents($providerPath);
+            if ($original === false) {
+                $plan->addConflict($providerPath);
+            } else {
+                $result = $providerEditor->update($original, $contract, $repository);
+                $result->isSafe()
+                    ? $plan->addManagedFile($providerPath, $original, $result->content())
+                    : $plan->addConflict($providerPath);
+            }
+        } elseif (file_exists($providerPath)) {
+            $plan->addConflict($providerPath);
+        } else {
+            $plan->addManagedCreate($providerPath, $providerEditor->create($contract, $repository));
+        }
+
+        $bootstrapPath = $this->basePath.'/bootstrap/providers.php';
+        if (! is_file($bootstrapPath)) {
+            $plan->addConflict($bootstrapPath);
+            return;
+        }
+
+        $original = file_get_contents($bootstrapPath);
+        if ($original === false) {
+            $plan->addConflict($bootstrapPath);
+            return;
+        }
+
+        $result = (new BootstrapProvidersEditor())->update($original);
+        $result->isSafe()
+            ? $plan->addManagedFile($bootstrapPath, $original, $result->content())
+            : $plan->addConflict($bootstrapPath);
     }
 
     private function addModularBaseImports($content, $artifact, array $context)

@@ -1,0 +1,33 @@
+<?php
+
+namespace App\Services;
+
+use App\Actions\ResponseData;
+use App\Contracts\{{ model }}RepositoryInterface;
+
+class {{ model }}Service extends BasicCrudService
+{
+    public function __construct(private {{ model }}RepositoryInterface ${{ modelVariable }}Repository)
+    {
+    }
+
+    public function handleCreate(array $data): ResponseData
+    {
+        return $this->create($data, $this->{{ modelVariable }}Repository);
+    }
+
+    public function handleUpdate(array $data): ResponseData
+    {
+        return $this->update($data, $this->{{ modelVariable }}Repository);
+    }
+
+    public function handleDelete(int|string $id): ResponseData
+    {
+        return $this->delete(['id' => $id], $this->{{ modelVariable }}Repository);
+    }
+
+    public function handleRead(null|string|int $id = null): ResponseData
+    {
+        return $this->read($this->{{ modelVariable }}Repository, '{{ modelUnderScore }}', $id);
+    }
+}

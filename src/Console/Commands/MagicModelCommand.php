@@ -15,7 +15,7 @@ class MagicModelCommand extends Command
 {
     protected $signature = 'magic:model
         {name : A single PascalCase model name}
-        {--profile=standard : Generation profile: lean, standard, or enterprise}
+        {--profile=standard : Generation profile: lean, repository, standard, or enterprise}
         {--path= : Project-relative feature boundary}
         {--namespace= : Explicit namespace matching an approved Composer PSR-4 mapping}
         {--force : Overwrite every conflicting feature artifact}

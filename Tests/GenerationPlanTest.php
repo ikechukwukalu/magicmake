@@ -75,6 +75,22 @@ class GenerationPlanTest extends TestCase
         $this->assertSame(1, substr_count(file_get_contents($this->path.'/routes.php'), "Route::get('/health');"));
     }
 
+    public function test_managed_file_is_revalidated_immediately_before_write(): void
+    {
+        file_put_contents($this->path.'/managed.php', 'original');
+        $plan = new GenerationPlan($this->path);
+        $plan->addManagedFile($this->path.'/managed.php', 'original', 'updated');
+
+        $this->expectException(RuntimeException::class);
+        try {
+            $plan->commit(false, function ($path) {
+                file_put_contents($path, 'concurrent change');
+            });
+        } finally {
+            $this->assertSame('concurrent change', file_get_contents($this->path.'/managed.php'));
+        }
+    }
+
     private function removeDirectory($directory)
     {
         if (! is_dir($directory)) {
