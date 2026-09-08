@@ -6,6 +6,11 @@ class BootstrapProvidersEditor
 {
     const PROVIDER = 'App\\Providers\\RepositoryServiceProvider';
 
+    public function create()
+    {
+        return "<?php\n\nreturn [\n    ".self::PROVIDER."::class,\n];\n";
+    }
+
     public function update($content)
     {
         $stream = PhpTokenStream::from($content);

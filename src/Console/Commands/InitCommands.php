@@ -21,7 +21,8 @@ abstract class InitCommands extends Command
     protected function displayPlan(GenerationPlan $plan, $overwrite)
     {
         foreach ($plan->preview($overwrite) as $item) {
-            $this->line(strtoupper($item['action']).' '.$item['path']);
+            $reason = isset($item['reason']) ? ' — '.$item['reason'] : '';
+            $this->line(strtoupper($item['action']).' '.$item['path'].$reason);
         }
     }
 }

@@ -82,7 +82,7 @@ For an established project, updating the package and running only `magic:model` 
 
 ### Generation profiles
 
-v5.1.0 adds the Repository profile and shared repository autobinding.
+v5.0.1 added the Repository profile and shared repository autobinding. v5.1.0 makes that registration safe for both modern Laravel applications and upgraded applications that retain the legacy bootstrap structure.
 
 `--profile=standard` remains the default and preserves the established Magic Make feature structure.
 
@@ -91,7 +91,7 @@ v5.1.0 adds the Repository profile and shared repository autobinding.
 - `standard`: model, migration, contract, repository, service, controller, create/update/delete/read requests, API route, factory, and feature test.
 - `enterprise`: Standard plus a dedicated service provider with repository binding. For modular targets, the provider also loads the feature route and migrations.
 
-Standard and Repository safely maintain one application-level `App\Providers\RepositoryServiceProvider`. Magic Make creates it when absent, adds each contract-to-repository binding with fully qualified class names, and registers it exactly once in `bootstrap/providers.php`. Existing unrelated provider content and registrations are preserved. An exact existing `$this->app` or zero-argument `app()` binding is retained whether it uses `bind`, `singleton`, or `scoped` lifecycle semantics (including their `*If` variants), or `instance` with a directly constructed repository; the application-selected lifecycle remains authoritative. Missing or structurally unsafe provider registration, a conflicting or ambiguous implementation for the same contract, or an ambiguous provider structure stops the complete plan before any write; `--force` cannot bypass those semantic conflicts. Calls on unrelated receivers do not satisfy an application-container binding.
+Standard and Repository safely maintain one application-level `App\Providers\RepositoryServiceProvider`. In a modern Laravel 11–13 application, Magic Make creates or updates `bootstrap/providers.php`; in a conservatively recognized upgraded application that retains Laravel's legacy bootstrap structure, it preserves or safely updates the canonical `config/app.php` `ServiceProvider::defaultProviders()->merge([...])->toArray()` list instead. It never creates an unused modern registry for a legacy application. Existing unrelated provider content and registrations are preserved. An exact existing `$this->app` or zero-argument `app()` binding is retained whether it uses `bind`, `singleton`, or `scoped` lifecycle semantics (including their `*If` variants), or `instance` with a directly constructed repository; the application-selected lifecycle remains authoritative. Duplicate, dynamic, unparseable, or otherwise ambiguous registration structures and conflicting or ambiguous implementations stop the complete plan before any write; `--force` cannot bypass those semantic conflicts. Calls on unrelated receivers do not satisfy an application-container binding.
 
 ```shell
 php artisan magic:model Invoice --profile=lean

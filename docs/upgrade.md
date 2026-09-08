@@ -11,7 +11,7 @@ Updating Magic Make does not rewrite application files previously created by `ma
 
 Before updating, confirm that the application uses a combination in the [compatibility policy]({{ '/compatibility.html' | relative_url }}). Laravel 8–10 and PHP versions below 8.2 are not supported by v5.1.0. Laravel 11 is retained for compatibility evidence but has active advisories and is not security-supported; do not disable Composer security policy for a production update.
 
-v5.1.0 adds the Repository profile and makes Standard and Repository generation maintain a shared `App\Providers\RepositoryServiceProvider`. Before the first post-upgrade generation, commit application-owned files and confirm that `bootstrap/providers.php` is parseable and directly returns its provider array. Compatible existing bindings are preserved; conflicting or ambiguous bindings stop generation and cannot be overridden with `--force`.
+v5.0.1 added the Repository profile and shared `App\Providers\RepositoryServiceProvider`. v5.1.0 corrects registration for upgraded Laravel applications that retain the legacy bootstrap structure. Before the first post-upgrade generation, commit application-owned files and confirm either that modern `bootstrap/providers.php` directly returns its provider array or that legacy `config/app.php` contains the canonical `ServiceProvider::defaultProviders()->merge([...])->toArray()` provider list. An existing exact provider registration is reused; an absent registration is inserted once. Compatible existing bindings are preserved, while dynamic, duplicate, malformed, guarded, conflicting, or ambiguous structures stop generation before any feature artifact is written and cannot be overridden with `--force`.
 
 ## Safe package-only upgrade
 

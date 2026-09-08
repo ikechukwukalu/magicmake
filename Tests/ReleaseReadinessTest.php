@@ -20,6 +20,7 @@ class ReleaseReadinessTest extends TestCase
         mkdir($this->path.'/routes', 0755, true);
         mkdir($this->path.'/bootstrap', 0755, true);
         file_put_contents($this->path.'/routes/api.php', "<?php\n");
+        file_put_contents($this->path.'/bootstrap/app.php', "<?php\n\nuse Illuminate\\Foundation\\Application;\n\nreturn Application::configure(basePath: dirname(__DIR__))\n    ->withRouting(web: __DIR__.'/../routes/web.php')\n    ->create();\n");
         file_put_contents($this->path.'/bootstrap/providers.php', "<?php\n\nreturn [\n    App\\Providers\\AppServiceProvider::class,\n];\n");
         file_put_contents($this->path.'/composer.json', json_encode([
             'autoload' => ['psr-4' => ['App\\' => 'app/']],

@@ -19,6 +19,7 @@ class RepositoryProfileTest extends TestCase
         mkdir($this->path.'/routes', 0755, true);
         mkdir($this->path.'/bootstrap', 0755, true);
         file_put_contents($this->path.'/routes/api.php', "<?php\n");
+        file_put_contents($this->path.'/bootstrap/app.php', "<?php\n\nuse Illuminate\\Foundation\\Application;\n\nreturn Application::configure(basePath: dirname(__DIR__))\n    ->withRouting(web: __DIR__.'/../routes/web.php')\n    ->create();\n");
         file_put_contents($this->path.'/bootstrap/providers.php', "<?php\n\nreturn [\n    App\\Providers\\AppServiceProvider::class,\n];\n");
         file_put_contents($this->path.'/composer.json', json_encode([
             'autoload' => ['psr-4' => ['App\\' => 'app/']],
@@ -399,14 +400,10 @@ PHP;
         }
     }
 
-    public function test_missing_or_malformed_bootstrap_provider_file_prevents_all_writes(): void
+    public function test_malformed_bootstrap_provider_file_prevents_all_writes(): void
     {
-        foreach ([null, "<?php\nreturn collect([]);\n", "<?php\nreturn [;\n"] as $index => $content) {
-            if ($content === null) {
-                unlink($this->path.'/bootstrap/providers.php');
-            } else {
-                file_put_contents($this->path.'/bootstrap/providers.php', $content);
-            }
+        foreach (["<?php\nreturn collect([]);\n", "<?php\nreturn [;\n"] as $index => $content) {
+            file_put_contents($this->path.'/bootstrap/providers.php', $content);
 
             $plan = $this->factory->make('Invoice'.$index, GenerationProfile::REPOSITORY);
             $this->assertContains($this->path.'/bootstrap/providers.php', $plan->conflicts(true));

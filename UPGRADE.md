@@ -1,17 +1,25 @@
 # Upgrade Guide
 
+## v5.0.1 to v5.1.0
+
+v5.1.0 corrects provider registration for upgraded Laravel 11–13 applications that retain the legacy bootstrap structure. When `bootstrap/providers.php` is absent, Magic Make now recognizes the canonical `ServiceProvider::defaultProviders()->merge([...])->toArray()` provider list in `config/app.php`, reuses or inserts `App\Providers\RepositoryServiceProvider::class` there, and does not create an unused modern registry.
+
+The reported Laravel 12 structure is covered by regression tests. If `App\Providers\RepositoryServiceProvider::class` is already present in the canonical `config/app.php` list, it remains unchanged and Repository generation proceeds. Duplicate, dynamic, malformed, guarded, or ambiguous registration structures still fail before any feature artifact is written.
+
+Commit `bootstrap/app.php`, `config/app.php`, and application provider files before generation. Magic Make revalidates the bootstrap decision and selected registry before commit and rolls back package-owned writes on failure.
+
 ## v5.0.0 to v5.1.0
 
 The upgrade is additive. Standard remains the default, and Lean and Enterprise retain their existing artifact contracts. Existing generated application files are not rewritten merely by updating the package.
 
-The new Repository profile generates exactly seven feature artifacts: model, migration, factory, model test, repository contract, repository implementation, and a presentation-independent service. The service accepts arrays and scalar IDs and returns typed `ResponseData` without depending on HTTP requests.
+The Repository profile, first published in v5.0.1, generates exactly seven feature artifacts: model, migration, factory, model test, repository contract, repository implementation, and a presentation-independent service. The service accepts arrays and scalar IDs and returns typed `ResponseData` without depending on HTTP requests.
 
-Standard and Repository generation now maintain a shared `App\Providers\RepositoryServiceProvider` and register it exactly once in `bootstrap/providers.php`. Review both application-owned files before the first post-upgrade generation. Provider creation and modification participate in preflight, dry-run, source revalidation, atomic creation, rollback, and idempotency. Compatible existing bindings are preserved; conflicting or ambiguous bindings stop generation and cannot be overridden with `--force`.
+Standard and Repository generation now maintain a shared `App\Providers\RepositoryServiceProvider` and register it exactly once through the application's active provider registry. Modern Laravel 11–13 applications use `bootstrap/providers.php`; recognized upgraded applications retaining the legacy bootstrap use their canonical `config/app.php` provider merge list. Review the applicable application-owned files before the first post-upgrade generation. Provider creation and modification participate in preflight, dry-run, source revalidation, atomic creation, rollback, and idempotency. Compatible existing bindings are preserved; conflicting or ambiguous bindings stop generation and cannot be overridden with `--force`.
 
 Before updating an established v5.0 application:
 
 1. Commit the current application state, `composer.json`, and lockfile.
-2. Confirm `bootstrap/providers.php` is parseable and returns a direct provider array.
+2. Confirm the active provider registry is parseable: a direct `bootstrap/providers.php` array for modern bootstraps, or the canonical `ServiceProvider::defaultProviders()->merge([...])->toArray()` entry in `config/app.php` for a retained legacy bootstrap.
 3. Update the package without running `magic:init`.
 4. Run the application test suite.
 5. Preview a disposable Standard or Repository feature with `magic:model --dry-run`.
@@ -46,7 +54,7 @@ Laravel 12's general bug-fix window ended August 13, 2026, but upstream security
 5. Generate a real feature only after reviewing the complete preflight plan.
 6. Verify API requests both with and without an explicit `Accept: application/json` header.
 
-Standard generation now safely maintains `App\Providers\RepositoryServiceProvider` and its registration in `bootstrap/providers.php`. The new Repository profile uses the same shared provider. Ensure the Laravel 11–13 application has a parseable `bootstrap/providers.php` returning an array before generation. Exact `$this->app` and zero-argument `app()` container bindings and registrations are idempotent; an existing exact `singleton`, `scoped`, conditional lifecycle variant, or directly constructed `instance` is preserved rather than replaced with `bind`. Conflicting or ambiguous implementations and structurally unsafe files stop generation even with `--force`. Commit application-owned provider files before generation so rollback and review remain straightforward.
+Standard generation now safely maintains `App\Providers\RepositoryServiceProvider`; the Repository profile uses the same shared provider. Modern Laravel 11–13 bootstraps use `bootstrap/providers.php`, which Magic Make can create atomically when missing. Conservatively recognized upgraded bootstraps continue using `config/app.php`: an existing exact registration is left byte-for-byte unchanged, and an absent registration is inserted once into the canonical provider merge list. Dynamic, duplicate, unparseable, or ambiguous provider lists stop generation even with `--force`. Exact `$this->app` and zero-argument `app()` container bindings and registrations are idempotent; an existing exact `singleton`, `scoped`, conditional lifecycle variant, or directly constructed `instance` is preserved rather than replaced with `bind`. Commit application-owned provider files before generation so rollback and review remain straightforward.
 
 Use `--profile=repository` when a feature needs persistence and a presentation-independent service but no controller, requests, route, or feature test. Its service accepts arrays and scalar IDs and continues returning typed `ResponseData`.
 

@@ -5,12 +5,13 @@ This checklist governs preparation and release of v5.1.0. Completing a check doe
 ## Release identity
 
 - Candidate version: `v5.1.0`
-- Previous public version: `v5.0.0`
-- Previous public commit: `b07303f62c8997fce62edc1d9c32badd905c7e39`
-- Development source PR HEAD SHA: `<record before development review>`
-- Development `test` merge SHA: `<record after approved development merge>`
-- Public base SHA: `<record immediately before synchronization>`
-- Public candidate branch: `release/v5.1.0-repository-profile`
+- Previous public version: `v5.0.1`
+- Previous public commit and immutable tag SHA: `b12d90e94130329e4030df0d81f919b2d47f0392`
+- Development corrective PR HEAD SHA: `95715971755437698b4cbf4b14da8f17ed2161bc`
+- Development `test` merge SHA: `2763886aa04db21487c60271e04801c72b0c6679`
+- Qualified development `staging` SHA: `bba92d0bdf760ce7cef0a00da9236cbdd5ff04a6`
+- Public base SHA: `b12d90e94130329e4030df0d81f919b2d47f0392`
+- Public candidate branch: `release/v5.1.0-provider-compatibility`
 - Public candidate PR HEAD SHA: `<record after synchronization and every correction>`
 - Public `main` merge SHA: `<record after approved public merge>`
 - Immutable `v5.1.0` tag SHA: `<record after separately authorized tag creation>`
@@ -19,7 +20,7 @@ Every placeholder must contain a full 40-character commit SHA before the stage t
 
 ## Development source qualification
 
-- [ ] Record included and excluded roadmap scope and confirm v5.1.0 contains only reviewed changes since v5.0.0.
+- [ ] Record included and excluded roadmap scope and confirm v5.1.0 contains only the reviewed compatibility corrections since immutable v5.0.1.
 - [ ] Confirm the development preparation pull request targets `test` and its recorded HEAD SHA matches GitHub.
 - [ ] Confirm the workflow triggered for that exact PR HEAD—not only a local run, earlier commit, `main`, or manual run—is green.
 - [ ] Confirm all ten advertised Laravel/PHP jobs pass on that PR HEAD.
@@ -30,10 +31,11 @@ Every placeholder must contain a full 40-character commit SHA before the stage t
 - [ ] Confirm PHPUnit passes on every matrix job and PHPStan passes at the configured level.
 - [ ] Confirm statement coverage remains at or above 55%.
 - [ ] Confirm Lean, Repository, Standard, and Enterprise smoke generation passes.
-- [ ] Confirm Standard and Repository provider creation, update, registration, idempotency, conflict, same-basename module, runtime resolution, source revalidation, atomic creation, and rollback regressions pass.
+- [ ] Confirm Standard and Repository provider creation, update, registration, idempotency, conflict, same-basename module, runtime resolution, source revalidation, atomic creation, and rollback regressions pass across modern `bootstrap/providers.php` and recognized legacy `config/app.php` provider registries.
+- [ ] Confirm legacy provider-registration files preserve comments, unrelated providers, aliases, formatting, and byte identity when no insertion is required; duplicate, dynamic, malformed, and ambiguous structures must remain non-forceable atomic conflicts.
 - [ ] Confirm Standard-plan performance remains within the two-second/100-plan budget.
 - [ ] Confirm established-project `magic:model` backward-compatibility regression passes.
-- [ ] Confirm the changelog contains only v5.1.0 Repository-profile/shared-autobinding changes and preserves v5.0.0 and earlier history.
+- [ ] Confirm the changelog records v5.1.0 compatibility corrections separately, preserves immutable v5.0.1 Repository-profile history, and retains v5.0.0 and earlier history.
 - [ ] Confirm README, upgrade guidance, lifecycle wording, and Pages source match the qualified behavior without temporary candidate-status claims.
 - [ ] Confirm the Jekyll build and rendered-site link validation pass on the exact PR HEAD.
 - [ ] Record QA, review, CI URLs, known risks, and unresolved defects in Project Context.
@@ -67,7 +69,7 @@ Every placeholder must contain a full 40-character commit SHA before the stage t
 
 ## Rollback and correction
 
-- [ ] Before tagging, retain the prior public commit, v5.0.0 package constraint, lockfile, and application rollback procedure.
+- [ ] Before tagging, retain the prior public commit, v5.0.1 package constraint, lockfile, and application rollback procedure; never move or delete the immutable v5.0.1 tag.
 - [ ] If a candidate fails before tagging, stop publication, correct it on a new commit, rerun every affected gate, and update the recorded candidate SHA.
 - [ ] If a defect is found after tagging or publication, do not move, delete, or reuse `v5.1.0`; prepare a separately authorized corrective patch release from the appropriate source commit.
 - [ ] Document package constraint/lockfile restoration, cache clearing, redeployment, recovery ownership, and verification evidence.

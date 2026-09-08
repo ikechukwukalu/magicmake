@@ -91,6 +91,23 @@ class GenerationPlanTest extends TestCase
         }
     }
 
+    public function test_read_dependency_is_revalidated_before_any_write(): void
+    {
+        file_put_contents($this->path.'/decision.php', 'original');
+        $plan = new GenerationPlan($this->path);
+        $plan->addReadDependency($this->path.'/decision.php', 'original');
+        $plan->addManagedCreate($this->path.'/created.php', 'created');
+        file_put_contents($this->path.'/decision.php', 'application change');
+
+        $this->expectException(RuntimeException::class);
+        try {
+            $plan->commit(true);
+        } finally {
+            $this->assertSame('application change', file_get_contents($this->path.'/decision.php'));
+            $this->assertFileDoesNotExist($this->path.'/created.php');
+        }
+    }
+
     private function removeDirectory($directory)
     {
         if (! is_dir($directory)) {
