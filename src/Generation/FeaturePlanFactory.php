@@ -244,22 +244,58 @@ class FeaturePlanFactory
             $plan->addManagedCreate($providerPath, $providerEditor->create($contract, $repository));
         }
 
-        $bootstrapPath = $this->basePath.'/bootstrap/providers.php';
-        if (! is_file($bootstrapPath)) {
-            $plan->addConflict($bootstrapPath);
+        $bootstrapApplicationPath = $this->basePath.'/bootstrap/app.php';
+        if (! is_file($bootstrapApplicationPath)) {
+            $plan->addConflict($bootstrapApplicationPath, 'Restore a supported Laravel bootstrap/app.php before provider registration.');
+            return;
+        }
+        $bootstrapApplication = file_get_contents($bootstrapApplicationPath);
+        if ($bootstrapApplication === false) {
+            $plan->addConflict($bootstrapApplicationPath, 'The application bootstrap could not be read safely.');
+            return;
+        }
+        $plan->addReadDependency($bootstrapApplicationPath, $bootstrapApplication);
+        $mode = (new ApplicationBootstrapInspector())->mode($bootstrapApplication);
+        if ($mode === ApplicationBootstrapInspector::MODERN) {
+            $bootstrapPath = $this->basePath.'/bootstrap/providers.php';
+            if (is_file($bootstrapPath)) {
+                $original = file_get_contents($bootstrapPath);
+                if ($original === false) {
+                    $plan->addConflict($bootstrapPath);
+                    return;
+                }
+                $result = (new BootstrapProvidersEditor())->update($original);
+                $result->isSafe()
+                    ? $plan->addManagedFile($bootstrapPath, $original, $result->content())
+                    : $plan->addConflict($bootstrapPath);
+                return;
+            }
+            if (file_exists($bootstrapPath)) {
+                $plan->addConflict($bootstrapPath, 'Expected a writable PHP provider-registry file.');
+                return;
+            }
+            $plan->addManagedCreate($bootstrapPath, (new BootstrapProvidersEditor())->create());
+            return;
+        }
+        if ($mode !== ApplicationBootstrapInspector::LEGACY) {
+            $plan->addConflict($bootstrapApplicationPath, 'The application bootstrap is not a safely recognized modern or legacy Laravel structure.');
             return;
         }
 
-        $original = file_get_contents($bootstrapPath);
+        $configPath = $this->basePath.'/config/app.php';
+        if (! is_file($configPath)) {
+            $plan->addConflict($configPath, 'A recognized legacy bootstrap requires a canonical config/app.php provider list.');
+            return;
+        }
+        $original = file_get_contents($configPath);
         if ($original === false) {
-            $plan->addConflict($bootstrapPath);
+            $plan->addConflict($configPath);
             return;
         }
-
-        $result = (new BootstrapProvidersEditor())->update($original);
+        $result = (new LegacyConfigProvidersEditor())->update($original);
         $result->isSafe()
-            ? $plan->addManagedFile($bootstrapPath, $original, $result->content())
-            : $plan->addConflict($bootstrapPath);
+            ? $plan->addManagedFile($configPath, $original, $result->content())
+            : $plan->addConflict($configPath, 'Use one canonical ServiceProvider::defaultProviders()->merge([...])->toArray() list with unambiguous class literals.');
     }
 
     private function addModularBaseImports($content, $artifact, array $context)

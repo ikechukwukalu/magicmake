@@ -10,8 +10,11 @@ class GenerationPlan
     /** @var string */
     private $basePath;
 
-    /** @var array<string, array{path: string, content: string, mode: string, original?: string}> */
+    /** @var array<string, array{path: string, content: string, mode: string, original?: string, reason?: string}> */
     private $operations = [];
+
+    /** @var array<string, string> */
+    private $readDependencies = [];
 
     public function __construct($basePath)
     {
@@ -47,25 +50,48 @@ class GenerationPlan
     }
 
     /**
-     * Add a non-overridable preflight conflict for an unsafe managed file.
+     * Record a decision-bearing source that must remain byte-for-byte unchanged.
+     * Read dependencies never appear as write operations in the plan preview.
      */
-    public function addConflict($path)
+    public function addReadDependency($path, $original)
     {
-        return $this->addOperation($path, '', 'blocked');
+        $path = $this->normalizePath($path);
+        $this->assertSafePath($path);
+        $original = (string) $original;
+
+        if (isset($this->readDependencies[$path]) && $this->readDependencies[$path] !== $original) {
+            throw new RuntimeException("The generation plan has inconsistent source assertions for [{$path}].");
+        }
+
+        $this->readDependencies[$path] = $original;
+
+        return $this;
     }
 
     /**
-     * @return array<int, array{path: string, action: string}>
+     * Add a non-overridable preflight conflict for an unsafe managed file.
+     */
+    public function addConflict($path, $reason = null)
+    {
+        return $this->addOperation($path, '', 'blocked', null, $reason);
+    }
+
+    /**
+     * @return array<int, array{path: string, action: string, reason?: string}>
      */
     public function preview($overwrite = false)
     {
         $preview = [];
 
         foreach ($this->operations as $operation) {
-            $preview[] = [
+            $item = [
                 'path' => $operation['path'],
                 'action' => $this->resolveAction($operation, $overwrite),
             ];
+            if (isset($operation['reason'])) {
+                $item['reason'] = $operation['reason'];
+            }
+            $preview[] = $item;
         }
 
         return $preview;
@@ -99,7 +125,24 @@ class GenerationPlan
         $conflicts = $this->conflicts($overwrite);
 
         if ($conflicts !== []) {
-            throw new GenerationConflictException($conflicts);
+            throw new GenerationConflictException($conflicts, $this->conflictReasons($overwrite));
+        }
+
+        foreach ($this->readDependencies as $path => $original) {
+            $current = is_file($path) ? file_get_contents($path) : false;
+            if ($current === false || $current !== $original) {
+                throw new RuntimeException("Generation decision source [{$path}] changed after preflight.");
+            }
+        }
+
+        foreach ($this->operations as $operation) {
+            if ($operation['mode'] !== 'managed') {
+                continue;
+            }
+            $current = is_file($operation['path']) ? file_get_contents($operation['path']) : false;
+            if ($current === false || $current !== $operation['original']) {
+                throw new RuntimeException("Managed generation source [{$operation['path']}] changed after preflight.");
+            }
         }
 
         $backups = [];
@@ -181,7 +224,7 @@ class GenerationPlan
         }
     }
 
-    private function addOperation($path, $content, $mode, $original = null)
+    private function addOperation($path, $content, $mode, $original = null, $reason = null)
     {
         $path = $this->normalizePath($path);
         $this->assertSafePath($path);
@@ -194,8 +237,23 @@ class GenerationPlan
         if ($mode === 'managed') {
             $this->operations[$path]['original'] = $original;
         }
+        if (is_string($reason) && $reason !== '') {
+            $this->operations[$path]['reason'] = $reason;
+        }
 
         return $this;
+    }
+
+    private function conflictReasons($overwrite)
+    {
+        $reasons = [];
+        foreach ($this->preview($overwrite) as $item) {
+            if ($item['action'] === 'conflict' && isset($item['reason'])) {
+                $reasons[$item['path']] = $item['reason'];
+            }
+        }
+
+        return $reasons;
     }
 
     private function resolveAction(array $operation, $overwrite)

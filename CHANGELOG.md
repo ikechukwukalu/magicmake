@@ -2,12 +2,26 @@
 
 ## v5.1.0
 
+- Fix Standard and Repository generation in upgraded Laravel 11–13 applications that retain the legacy bootstrap structure and register providers through the canonical `config/app.php` provider merge list.
+- Detect the application's active provider registry before planning: modern applications use `bootstrap/providers.php`, while recognized legacy applications preserve or update `config/app.php` without creating an unused bootstrap registry.
+- Reuse an existing exact `App\Providers\RepositoryServiceProvider::class` registration and safely insert it once when absent.
+- Reject duplicate, dynamic, malformed, guarded, or otherwise ambiguous bootstrap/provider structures before any generated artifact is written, including when `--force` is used.
+- Revalidate `bootstrap/app.php` and the selected registry immediately before commit so a concurrent application change aborts atomically with no partial generation.
+- Add regression coverage for the reported upgraded Laravel 12 structure, modern and legacy creation/reuse, rollback, concurrent changes, and runtime repository-contract resolution.
+- Preserve existing public APIs, profile output, Standard defaults, repository binding lifecycles, initialized helpers, and established-project behavior.
+
+See [UPGRADE.md](UPGRADE.md) before updating an established v5.0.1 application.
+
+## v5.0.1
+
 - Add the Repository profile, which generates a model, migration, factory, model test, repository contract, repository implementation, and presentation-independent service.
 - Generate the Repository service with array and scalar-ID inputs and typed `ResponseData` results, without controller, request, route, or feature-test dependencies.
-- Make Standard and Repository generation safely create or update the shared `App\Providers\RepositoryServiceProvider` and register it exactly once in `bootstrap/providers.php`.
+- Make Standard and Repository generation create or update the shared `App\Providers\RepositoryServiceProvider` and register it exactly once in `bootstrap/providers.php` for applications using the modern Laravel bootstrap structure.
 - Preserve existing compatible container lifecycles and unrelated provider content while blocking conflicting or ambiguous bindings, including when `--force` is used.
 - Include provider and bootstrap changes in preflight, dry-run, source revalidation, atomic creation, rollback, idempotency, modular namespace, and same-basename domain protections.
 - Preserve Standard as the default profile, Lean output, Enterprise feature-specific providers, existing public APIs, and established-project behavior.
+
+The immutable v5.0.1 release is preserved at public commit `b12d90e94130329e4030df0d81f919b2d47f0392`. Its legacy-bootstrap provider-registration limitation is corrected in v5.1.0.
 
 See [UPGRADE.md](UPGRADE.md) before updating an established v5.0 application.
 

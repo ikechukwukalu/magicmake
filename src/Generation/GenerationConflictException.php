@@ -12,11 +12,14 @@ class GenerationConflictException extends RuntimeException
     /**
      * @param  array<int, string>  $conflicts
      */
-    public function __construct(array $conflicts)
+    public function __construct(array $conflicts, array $reasons = [])
     {
         $this->conflicts = array_values($conflicts);
+        $messages = array_map(function ($path) use ($reasons) {
+            return isset($reasons[$path]) ? $path.' — '.$reasons[$path] : $path;
+        }, $this->conflicts);
 
-        parent::__construct("Generation conflicts detected:\n - ".implode("\n - ", $this->conflicts));
+        parent::__construct("Generation conflicts detected:\n - ".implode("\n - ", $messages));
     }
 
     /**

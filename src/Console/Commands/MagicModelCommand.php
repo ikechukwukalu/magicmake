@@ -41,7 +41,8 @@ class MagicModelCommand extends Command
             $this->line('ARTIFACTS '.implode(', ', $plan->artifacts()));
 
             foreach ($plan->preview($overwrite) as $item) {
-                $this->line(strtoupper($item['action']).' '.$item['path']);
+                $reason = isset($item['reason']) ? ' — '.$item['reason'] : '';
+                $this->line(strtoupper($item['action']).' '.$item['path'].$reason);
             }
 
             if ($this->option('dry-run')) {
